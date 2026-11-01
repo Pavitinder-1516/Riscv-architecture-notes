@@ -825,6 +825,172 @@ def d_simple_datapath():
     save(f, "37_simple_datapath_control.png")
 
 
+def d_osoc():
+    f, ax = fig(14, 8.6)
+    ax.set_xlim(0, 140)
+    title(ax, "The simple SoC we are building (OSoC 1.0)", "CPU = MASTER (starts every transfer)   |   all other blocks = SLAVES   |   bare metal, no operating system")
+    box(ax, 4, 52, 40, 22, "", fc=C["violet"])
+    ax.text(24, 70.5, "RV32I CPU", ha="center", weight="bold", fontsize=12)
+    for i, t in enumerate(["32 general-purpose regs (32-bit)", "ALU + MUXes", "CSR regs (control & status)"]):
+        ax.add_patch(Rectangle((7, 63.5 - i * 5), 34, 4.2, fc="white", ec=C["mute"]))
+        ax.text(24, 65.6 - i * 5, t, ha="center", va="center", fontsize=8.8)
+    box(ax, 54, 56, 26, 16, "Interrupt\ncontroller (PLIC)", fc=C["rose"], fs=10)
+    arrow(ax, 54, 64, 44, 64, "interrupt", toff=(0, 2.3))
+    ax.add_patch(Rectangle((4, 42), 132, 5, fc=C["ink"]))
+    ax.text(6, 44.5, "SYSTEM BUS = address (32) + data (32) + control  (AHB, Wishbone ...)", ha="left", va="center", color="white", fontsize=9.2)
+    arrow(ax, 24, 52, 24, 47, style="<|-|>"); arrow(ax, 67, 56, 67, 47, style="<|-|>")
+    blocks = [("Flash\n(via SPI ctrl)\nprogram, keeps\ndata at power-off", C["amber"]),
+              ("SRAM\nstack, global data\n(lost at power-off)", C["blue"]),
+              ("GPIO\ncontroller", C["green"]), ("UART", C["green"]), ("I2C", C["green"])]
+    for i, (t, c) in enumerate(blocks):
+        x = 4 + i * 27
+        box(ax, x, 18, 24, 18, t, fc=c, fs=9)
+        arrow(ax, x + 12, 42, x + 12, 36, style="<|-|>")
+    for xx in (62, 89, 116):
+        ax.plot([xx, xx], [36, 39.5], color=C["f3"], lw=1, ls="--")
+    ax.plot([62, 116], [39.5, 39.5], color=C["f3"], lw=1, ls="--")
+    ax.plot([100, 100, 80], [39.5, 64, 64], color=C["f3"], lw=1, ls="--")
+    ax.text(102, 58, "interrupt lines\n(GPIO, UART, I2C)", fontsize=8, color=C["f3"])
+    box(ax, 46, 3, 20, 9, "temperature\nsensor (input)", fc="white", fs=9)
+    box(ax, 72, 3, 20, 9, "fan / AC / motor\n(output)", fc="white", fs=9)
+    arrow(ax, 56, 12, 62, 18); arrow(ax, 66, 18, 82, 12)
+    ax.text(110, 8, "Example job: industrial automation\nsensor too hot -> turn the fan on", fontsize=9, color=C["mute"], ha="center")
+    save(f, "38_osoc_soc.png")
+
+
+def d_neighborhood():
+    f, ax = fig(14, 6.4)
+    ax.set_xlim(0, 140)
+    title(ax, "One long street of 2^32 addresses, shared by every device", "each device = a neighbourhood; each register / byte inside it = a house with its own address")
+    segs = [("Flash", 0, 30, C["amber"]), ("SRAM", 30, 66, C["blue"]), ("GPIO", 66, 84, C["green"]),
+            ("UART", 84, 100, C["green"]), ("Int. ctrl", 100, 116, C["rose"]), ("(unused)", 116, 136, C["slate"])]
+    for name, a, b, c in segs:
+        ax.add_patch(Rectangle((4 + a, 26), b - a, 10, fc=c, ec="white", lw=2))
+        ax.text(4 + (a + b) / 2, 31, name, ha="center", va="center", fontsize=10, weight="bold")
+        for k in range(int((b - a) // 3)):
+            ax.add_patch(Rectangle((4 + a + 0.6 + k * 3, 37), 2.2, 2.2, fc=c, ec=C["mute"], lw=0.5))
+    ax.text(4, 22.5, "0x0000_0000", fontsize=8.5, family="DejaVu Sans Mono")
+    ax.text(140, 22.5, "0xFFFF_FFFF", fontsize=8.5, family="DejaVu Sans Mono", ha="right")
+    box(ax, 4, 4, 26, 10, "CPU puts address\n0x2000_0004 on the bus", fc=C["violet"], fs=9)
+    box(ax, 40, 4, 30, 10, "Address decoder:\n'this is in the GPIO range'", fc=C["amber"], fs=9)
+    box(ax, 80, 4, 36, 10, "Only GPIO answers\n(register at offset 0x4)", fc=C["green"], fs=9)
+    arrow(ax, 30, 9, 40, 9); arrow(ax, 70, 9, 80, 9)
+    arrow(ax, 75, 14, 75, 26, color=C["f3"])
+    ax.text(77, 43, "houses (one address each)", fontsize=8.5, color=C["mute"])
+    save(f, "39_address_neighborhood.png")
+
+
+def d_memmap_lecture():
+    f, ax = fig(13, 10)
+    ax.set_xlim(0, 130)
+    title(ax, "Memory map of our SoC (example addresses - the designer chooses them)", "RISC-V does NOT fix these addresses; each SoC defines its own map")
+    regions = [("", "(unused - top word is 0xFFFF_FFFC, the last byte 0xFFFF_FFFF)", C["slate"], 5, None),
+               ("0x2000_2000", "Interrupt controller registers", C["rose"], 5, "Peripherals\n(memory-mapped)"),
+               ("0x2000_1000", "UART registers", C["green"], 5, None),
+               ("0x2000_0000", "GPIO registers (input status, output)", C["green"], 5, None),
+               ("", "STACK  (grows DOWN)   <- sp starts at the top", C["violet"], 7, "SRAM\n(lost at\npower-off)"),
+               ("", "free space", "white", 5, None),
+               ("", "HEAP  (malloc, grows UP)", C["teal"], 6, None),
+               ("0x1000_0000", "GLOBAL DATA  (gp points to the middle)", C["blue"], 8, None),
+               ("0x0000_0000", "FLASH: startup code, program (.text),\nconstants, interrupt service routines", C["amber"], 12, "Flash\n(kept at\npower-off)")]
+    y = 82
+    for a, t, c, h, grp in regions:
+        ax.add_patch(Rectangle((40, y - h), 50, h, fc=c, ec=C["ink"], lw=0.8))
+        ax.text(65, y - h / 2, t, ha="center", va="center", fontsize=8.8)
+        if a:
+            ax.text(38, y - h + 0.4, a, ha="right", va="bottom", fontsize=8.5, family="DejaVu Sans Mono")
+        if grp:
+            ax.text(94, y - 2, grp, fontsize=9.5, weight="bold", va="top")
+        y -= h
+    ax.annotate("", xy=(84, 51.2), xytext=(84, 55.6), arrowprops=dict(arrowstyle="-|>", color=C["f3"], lw=1.6))
+    ax.annotate("", xy=(46, 53.8), xytext=(46, 49.4), arrowprops=dict(arrowstyle="-|>", color=C["op"], lw=1.6))
+    ax.text(38, 82, "0xFFFF_FFFC", ha="right", va="top", fontsize=8.5, family="DejaVu Sans Mono")
+    ax.text(14, 42, "gp = 0x1000_0800\n(+/- 2 KB reach\nwith a 12-bit offset)", fontsize=8.5, color=C["op"], ha="center")
+    arrow(ax, 24, 41, 40, 40, color=C["op"])
+    ax.text(38, 61.6, "0x1000_FFFC", ha="right", va="top", fontsize=8.5, family="DejaVu Sans Mono")
+    ax.text(65, 18, "The address alone decides WHICH device answers: 0x0000_0004 -> flash,  0x1000_0010 -> SRAM,  0x2000_0000 -> GPIO",
+            ha="center", fontsize=9, color=C["mute"])
+    save(f, "40_memory_map_lecture.png")
+
+
+def d_isr_fan():
+    steps = [("6", "Call the Interrupt Service Routine (ISR) - code stored in flash", C["amber"]),
+             ("7", "Save the context: copy registers in use (t0, s0 ...) to a scratch area (mscratch)", C["blue"]),
+             ("8", "Ask the interrupt controller WHO interrupted -> ID says 'GPIO 0' (temp sensor)", C["rose"]),
+             ("9", "Do the service: write the GPIO controller register for GPIO 2 (memory-mapped address)", C["green"]),
+             ("10", "GPIO 2 output goes high -> the FAN turns on", C["green"]),
+             ("11", "Tell the system 'job done', then restore the registers and PC (back to old code)", C["blue"]),
+             ("12", "Re-enable interrupts -> CPU continues exactly where it stopped", C["violet"])]
+    f, ax = fig(12.5, 7.6)
+    ax.set_xlim(0, 125)
+    title(ax, "Interrupt flow, steps 6-12: 'too hot' -> fan ON", "steps 1-5 (previous video): sensor signal -> GPIO -> interrupt controller -> CPU, CSRs updated")
+    y = 64
+    ax.plot([8, 8], [61, 64 - 6 * 8.6 - 3], color=C["ink"], lw=1.5, zorder=0)
+    for n, t, c in steps:
+        ax.add_patch(plt.Circle((8, y - 3), 3, fc=C["ink"]))
+        ax.text(8, y - 3, n, ha="center", va="center", color="white", fontsize=9, weight="bold")
+        box(ax, 14, y - 6.2, 106, 6.2, t, fc=c, fs=9.5, r=0.4)
+        y -= 8.6
+    save(f, "41_interrupt_steps_6_12_fan.png")
+
+
+def d_directives_layout():
+    rows = [("0x1000_0000", "A[0] = 5", "00000005"), ("0x1000_0004", "A[1] = 42", "0000002A"),
+            ("0x1000_0008", "A[2] = -88", "FFFFFFA8"), ("0x1000_000C", "A[3] = 2", "00000002"),
+            ("0x1000_0010", "A[4] = -5", "FFFFFFFB"), ("0x1000_0014", "A[5] = 20", "00000014"),
+            ("0x1000_0018", "A[6] = 7", "00000007")]
+    f, ax = fig(13, 9.6)
+    ax.set_xlim(0, 130)
+    title(ax, "Where the .data items land in memory (little-endian, 4 bytes per row)", "byte 0 of each word is on the RIGHT; grey = padding / unused")
+    hdr_y = 82
+    for k, t in enumerate(["byte 3", "byte 2", "byte 1", "byte 0"]):
+        ax.text(42 + k * 13 + 6.5, hdr_y, t, ha="center", fontsize=8.5, color=C["mute"])
+    y = 78
+    def row(addr, cells_, label, col):
+        nonlocal y
+        ax.text(40, y - 2.4, addr, ha="right", va="center", fontsize=8.5, family="DejaVu Sans Mono")
+        for k, (v, fc) in enumerate(cells_):
+            ax.add_patch(Rectangle((42 + k * 13, y - 4.8), 13, 4.8, fc=fc, ec="white"))
+            ax.text(42 + k * 13 + 6.5, y - 2.4, v, ha="center", va="center", fontsize=8.5, family="DejaVu Sans Mono")
+        ax.text(96, y - 2.4, label, va="center", fontsize=9, color=col)
+        y -= 5.6
+    for a, lab, hx in rows:
+        row(a, [(hx[i:i + 2], C["blue"]) for i in (0, 2, 4, 6)], lab + "   (.word)", C["ink"])
+    G = "#d1d5db"; Y = C["amber"]
+    row("0x1000_001C", [("'C'", Y), ("'S'", Y), ("'I'", Y), ("'R'", Y)], "str1 = \"RISC-V\"  (.string)", C["ink"])
+    row("0x1000_0020", [("pad", G), ("\\0", Y), ("'V'", Y), ("'-'", Y)], "\\0 ends the string; .align 2 pads", C["f3"])
+    row("0x1000_0024", [("00", C["green"]), ("00", C["green"]), ("03", C["green"]), ("2A", C["green"])], "B = 0x32A  (.word, now 4-byte aligned)", C["ink"])
+    row("0x1000_0028", [("00", C["teal"])] * 4, "C: .space 4  (4 zero bytes)", C["ink"])
+    row("0x1000_002C", [("pad", G), ("pad", G), ("pad", G), ("00", C["teal"])], "D: .space 1, then .balign 4 pads", C["ink"])
+    ax.text(65, 6, "Without .align 2, B would start at 0x1000_0023 and straddle two words -> two memory reads to fetch it.",
+            ha="center", fontsize=9.3, color=C["mute"])
+    save(f, "42_directives_memory_layout.png")
+
+
+def d_osoc_flow():
+    f, ax = fig(14, 6.6)
+    ax.set_xlim(0, 140)
+    title(ax, "From this course to a real chip: the plan for OSoC", "one simple SoC, taken through the complete chip-design flow")
+    items = [("Architecture\n(THIS course)\nRV32I + peripherals", C["green"]),
+             ("Micro-\narchitecture\non paper\n(H&H Ch. 7)", C["blue"]),
+             ("RTL in\nSystemVerilog\n(AI-assisted,\nreviewed)", C["violet"]),
+             ("Verification\nPython model,\nCPU +\nperipherals", C["amber"]),
+             ("Physical design\nopen-source\ntools -> GDS", C["rose"]),
+             ("Tape-out", C["slate"])]
+    x = 2
+    for i, (t, c) in enumerate(items):
+        box(ax, x, 26, 19.5, 22, t, fc=c, fs=9.2, bold=(i == 0))
+        if i < len(items) - 1:
+            arrow(ax, x + 19.5, 37, x + 23, 37)
+        x += 23
+    box(ax, 2, 4, 136, 14, "", fc="white")
+    ax.text(70, 14.5, "OSoC 1.0 spec:  simple  |  low power  |  low cost (small area)  |  single-cycle (no pipeline)  |  RV32I only (37 base instr., no mul/div HW)",
+            ha="center", fontsize=9.3)
+    ax.text(70, 8.5, "bare metal (no OS)  |  program in flash  |  interrupts, not polling  |  GPIO, UART, I2C, PLIC, SPI flash  |  JTAG debug  |  industrial automation",
+            ha="center", fontsize=9.3)
+    save(f, "43_osoc_design_flow.png")
+
+
 def d_branch():
     f, ax = fig(11, 6.4)
     title(ax, "Conditional branch:  beq / bne / blt / bge / bltu / bgeu  rs1, rs2, label")
@@ -845,6 +1011,7 @@ if __name__ == "__main__":
     d_caller_callee(); d_formats(); d_encodings(); d_imm_scramble("B"); d_imm_scramble("J")
     d_label_offset(); d_soc(); d_memmap(); d_interrupt12(); d_exception(); d_alignment(); d_debug()
     d_isa_overview(); d_cpu_datapath(); d_cpu_mem_io(); d_simple_datapath()
+    d_osoc(); d_neighborhood(); d_memmap_lecture(); d_isr_fan(); d_directives_layout(); d_osoc_flow()
     d_branch()
     vflow("12_if_else_flow.png", "if (a == b) x = 1; else x = 2;  ->  assembly",
           [("bne a0, a1, ELSE      # test the OPPOSITE condition", "dec"),
