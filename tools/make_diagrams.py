@@ -788,6 +788,43 @@ def d_cpu_mem_io():
     save(f, "36_cpu_memory_io.png")
 
 
+def d_simple_datapath():
+    f, ax = fig(14, 8)
+    ax.set_xlim(0, 140)
+    title(ax, "A very simple processor: datapath + control", "the lecture's first sketch (generic, not yet RISC-V specific)")
+    # PC with +1 feedback
+    box(ax, 4, 46, 16, 10, "Program\nCounter (PC)", fc=C["violet"], fs=9.5)
+    box(ax, 4, 62, 16, 7, "+1 adder", fc=C["slate"], fs=9)
+    arrow(ax, 9, 56, 9, 62); arrow(ax, 15, 62, 15, 56)
+    ax.text(2.5, 59, "PC", fontsize=7.5, color=C["mute"]); ax.text(16, 59, "PC+1", fontsize=7.5, color=C["mute"])
+    # memory
+    box(ax, 32, 30, 22, 32, "", fc=C["blue"])
+    ax.text(43, 58, "Memory", ha="center", weight="bold")
+    ax.text(43, 46, "instructions\n+ data\n(2^32 locations)", ha="center", va="center", fontsize=9)
+    arrow(ax, 20, 51, 32, 51, "address", toff=(0, 2.4))
+    # registers
+    box(ax, 64, 44, 16, 14, "Registers\n(32 x 32-bit)", fc=C["violet"], fs=9.5)
+    arrow(ax, 54, 51, 64, 51, "data", toff=(0, 2.4))
+    # mux and adder
+    ax.add_patch(plt.Polygon([[88, 58], [94, 54], [94, 40], [88, 36]], closed=True, fc=C["amber"], ec=C["ink"]))
+    ax.text(91, 47, "MUX", ha="center", va="center", fontsize=8.5, rotation=90)
+    arrow(ax, 80, 51, 88, 51)
+    arrow(ax, 54, 38, 88, 41, "from memory / other result", toff=(0, -2.6))
+    box(ax, 100, 40, 12, 14, "Adder\n(ALU)", fc=C["amber"], fs=9.5)
+    arrow(ax, 94, 47, 100, 47)
+    box(ax, 118, 40, 14, 14, "Output\nregister", fc=C["violet"], fs=9.5)
+    arrow(ax, 112, 47, 118, 47)
+    ax.plot([125, 125, 43, 43], [40, 24, 24, 30], color=C["ink"], lw=1.4)
+    ax.annotate("", xy=(43, 30), xytext=(43, 26), arrowprops=dict(arrowstyle="-|>", color=C["ink"]))
+    ax.text(84, 21.5, "write the result back to memory", ha="center", fontsize=9, color=C["mute"])
+    # control
+    box(ax, 4, 3, 132, 9, "CONTROL (state machine, clocked): PC enable, register write-enable, MUX select, memory write - in the right sequence", fc=C["rose"], fs=9.2)
+    for x, top in [(12, 46), (72, 44), (91, 37), (125, 40)]:
+        ax.plot([x, x], [12, top], color=C["f3"], lw=1, ls="--")
+    ax.text(70, 16, "DATAPATH = registers (sequential) + MUX / adder (combinational)      red dashed = control signals", ha="center", fontsize=9.5, color=C["ink"])
+    save(f, "37_simple_datapath_control.png")
+
+
 def d_branch():
     f, ax = fig(11, 6.4)
     title(ax, "Conditional branch:  beq / bne / blt / bge / bltu / bgeu  rs1, rs2, label")
@@ -807,7 +844,7 @@ if __name__ == "__main__":
     d_memory_pc(); d_lw_sw(); d_logic(); d_shifts(); d_endian(); d_function_call(); d_stack()
     d_caller_callee(); d_formats(); d_encodings(); d_imm_scramble("B"); d_imm_scramble("J")
     d_label_offset(); d_soc(); d_memmap(); d_interrupt12(); d_exception(); d_alignment(); d_debug()
-    d_isa_overview(); d_cpu_datapath(); d_cpu_mem_io()
+    d_isa_overview(); d_cpu_datapath(); d_cpu_mem_io(); d_simple_datapath()
     d_branch()
     vflow("12_if_else_flow.png", "if (a == b) x = 1; else x = 2;  ->  assembly",
           [("bne a0, a1, ELSE      # test the OPPOSITE condition", "dec"),

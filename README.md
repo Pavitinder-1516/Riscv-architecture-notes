@@ -18,7 +18,7 @@ One day = one video of the playlist (Day number = playlist number). The *Notes* 
 |---|---|---|---|
 | 01 | 1 · Video 1 | [Overview of the Training](Day-01-Overview-of-the-Training/README.md) | topic |
 | 02 | 1 · Video 2 | [Starting with 32-bit RV32I, the 'Just in Time' Fundamental Approach](Day-02-RV32I-Just-in-Time-Approach/README.md) | transcript |
-| 03 | 2 · Video 1 | [C Language to Assembly to Machine Language](Day-03-C-to-Assembly-to-Machine-Language/README.md) | topic |
+| 03 | 2 · Video 1 | [C Language to Assembly to Machine Language](Day-03-C-to-Assembly-to-Machine-Language/README.md) | transcript |
 | 04 | 2 · Video 2 | [What is a Register?](Day-04-What-is-a-Register/README.md) | topic |
 | 05 | 2 · Video 3 | [Register File, Instruction Examples with Registers](Day-05-Register-File/README.md) | topic |
 | 06 | 2 · Video 4 | [Why Assembly? ADDI Instruction, 2's Complement, Sign Extension](Day-06-ADDI-2s-Complement-Sign-Extension/README.md) | topic |
