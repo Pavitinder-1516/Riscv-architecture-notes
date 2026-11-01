@@ -3,6 +3,8 @@
 > **Course:** Week 8, Video 2 &nbsp;|&nbsp; **Playlist #35** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
 > **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
 
+> **How this fits with the lecture:** in the course, Part 1 (this video) covers **steps 1–5** and Part 2 (Day 36, written from the transcript) covers **steps 6–12**, using a "temperature too high → turn on the fan" example. The numbering on this page is the standard RISC-V hardware view; it will be matched to Rashid's numbering once this video's transcript is available.
+
 An **interrupt** is an asynchronous request from hardware: "stop what you're doing, handle me, then continue". To support it, RISC-V uses **Control and Status Registers (CSRs)** — special registers outside `x0–x31`, accessed with the `csr*` instructions (Zicsr extension).
 
 ## Machine-mode CSRs used for traps
