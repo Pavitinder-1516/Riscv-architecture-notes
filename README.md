@@ -6,6 +6,8 @@ Each day (one per video) has detailed theory, diagrams, worked examples, runnabl
 
 > 📺 Course playlist: https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH
 
+> 📄 **Full notes as one PDF (Day 01–40, 97 pages):** [PDF/40 day Rashid Risc v.pdf](<PDF/40 day Rashid Risc v.pdf>)
+
 ![Course roadmap](diagrams/01_course_roadmap.png)
 
 ---
@@ -68,6 +70,7 @@ riscv-architecture-notes/
 ├── ...                           ← one folder per video (40 days)
 ├── Day-40-Course-Overview-Roadmap/README.md
 ├── Cheatsheet/RV32I-Cheatsheet.md
+├── PDF/                          ← all notes in one PDF
 ├── code/                         ← runnable RV32I assembly examples
 ├── diagrams/                     ← all figures (PNG)
 └── tools/
