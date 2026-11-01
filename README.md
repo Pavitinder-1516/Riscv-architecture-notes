@@ -50,14 +50,14 @@ One day = one video of the playlist (Day number = playlist number). The *Notes* 
 | 30 | 7 · Video 3 | [Recap of Jumps and How LABEL Address is Calculated](Day-30-Label-Address-Calculation/README.md) | topic |
 | 31 | 7 · Video 1 | [Revision of R-Type, I-Type, S/B-Type Instructions](Day-31-Revision-R-I-S-B/README.md) | topic |
 | 32 | 6 · Video 4 | [An Example of BNE (B-Type) with Label Going Backward](Day-32-BNE-Backward-Label/README.md) | topic |
-| 33 | 8 · Video 1 | [RISC-V Interface to the Outside World, Peripherals](Day-33-Peripherals/README.md) | topic |
-| 34 | 8 · Video 2 | [Memory Address Space - Memory-Mapped Peripherals](Day-34-Memory-Mapped-IO/README.md) | topic |
+| 33 | 8 · Video 1 | [RISC-V Interface to the Outside World, Peripherals](Day-33-Peripherals/README.md) | transcript |
+| 34 | 8 · Video 2 | [Memory Address Space - Memory-Mapped Peripherals](Day-34-Memory-Mapped-IO/README.md) | transcript |
 | 35 | 8 · Video 2 | [12-Step Interrupt Action Flow - Part 1/2](Day-35-Interrupt-Flow-Part-1/README.md) | topic |
-| 36 | 8 · Video 3 | [12-Step Interrupt Action Flow - Part 2/2](Day-36-Interrupt-Flow-Part-2/README.md) | topic |
+| 36 | 8 · Video 3 | [12-Step Interrupt Action Flow - Part 2/2](Day-36-Interrupt-Flow-Part-2/README.md) | transcript |
 | 37 | 9 · Video 1 | [What are CPU Exceptions? How are They Handled?](Day-37-CPU-Exceptions/README.md) | topic |
-| 38 | 9 · Video 2 | [Assembler Directives and 4-Byte Boundary Alignment](Day-38-Assembler-Directives-Alignment/README.md) | topic |
+| 38 | 9 · Video 2 | [Assembler Directives and 4-Byte Boundary Alignment](Day-38-Assembler-Directives-Alignment/README.md) | transcript |
 | 39 | 9 · Video 3 | [Adding Debug Features to our SoC - GDB, OpenOCD, JTAG, OCD](Day-39-Debug-GDB-OpenOCD-JTAG/README.md) | topic |
-| 40 | 9 · Overview | [Complete Course Overview and Roadmap](Day-40-Course-Overview-Roadmap/README.md) | topic |
+| 40 | 9 · Overview | [Complete Course Overview and Roadmap](Day-40-Course-Overview-Roadmap/README.md) | transcript |
 | — | — | [RV32I one-page cheat-sheet](Cheatsheet/RV32I-Cheatsheet.md) | — |
 
 ## 🗂 Repository layout
