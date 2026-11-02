@@ -1,7 +1,7 @@
 # Day 29 — U/J-Type Instructions - Assembly to Machine Language
 
 > **Course:** Week 7, Video 2 &nbsp;|&nbsp; **Playlist #29** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## U-type
 
@@ -73,6 +73,28 @@ b20=0  b10:1=0000001000  b11=0  b19:12=00000000   rd=ra=00001   opcode=1101111
 ```
 
 ### Worked example — `jal x0, 0` (infinite loop: `j .`) → `0x0000006F`
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 6 and 7 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**U-type:** the immediate is the **most significant 20 bits** of the 32-bit value. **J-type:** 20 bits stored, but they mean a **21-bit** offset (bit 0 is always 0).
+
+**Opcodes:** lui = **55**, auipc = **23**, jal = **111**.
+
+**`lui s5, 0x8CDEF`** → s5 = 0x8CDEF000 (12 zeros at the bottom) → machine code **0x8CDEFAB7** (verified).
+
+**`auipc s3, imm`** → s3 = PC + (imm << 12), computed by an adder that takes the shifted immediate and the PC.
+
+**Book Figure 6.25 — `jal ra, func1`:** jal at **0x0000540C**, func1 at **0x000ABC04**. Offset = 0xABC04 − 0x540C = **0xA67F8** → machine code **0x7F8A60EF** (verified). `jal` does two jobs: **1) save `ra` (= PC + 4)  2) compute the offset** and jump.
+
+**His own example — `jal ra, sum`:** jal at 0x0000_0100, `sum:` at 0x0000_1000.
+
+1. Offset = 0x1000 − 0x100 = **0xF00**.
+2. ra = **0x0000_0104** (the next instruction).
+
+Machine code = **0x700010EF** (verified).
 
 ---
 [⬅ Day 28](../Day-28-S-B-Type-Encoding/README.md) | [Index](../README.md) | [Day 30 ➡](../Day-30-Label-Address-Calculation/README.md)
