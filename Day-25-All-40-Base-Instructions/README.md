@@ -1,7 +1,7 @@
 # Day 25 — Wrapping Up All 37/40 Base Instructions - Next Steps
 
 > **Course:** Week 5, Video 5 &nbsp;|&nbsp; **Playlist #25** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ![RV32I 40 instructions](../diagrams/34_rv32i_instruction_set.png)
 
@@ -68,6 +68,34 @@ Now that we can *write* every instruction, the next question is: **what does the
 4. No — `t2` is caller-saved. Save it on the stack before the call, or keep it in an `s` register.
 5. Flags complicate out-of-order/pipelined hardware. `add t0, a, b` ; `sltu t1, t0, a` → `t1 = 1` if a carry (unsigned overflow) occurred.
 </details>
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 5 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**The 40 RV32I base instructions** (his table):
+
+| Group | # | Instructions |
+|---|---|---|
+| Arithmetic | 5 | add, addi, sub, lui, auipc |
+| Logical | 6 | and, andi, or, ori, xor, xori |
+| Shift | 6 | sll, slli, srl, srli, sra, srai |
+| Comparison | 4 | slt, slti, sltu, sltiu |
+| Memory access | 8 | lb, lbu, lh, lhu, lw, sb, sh, sw |
+| Control flow | 8 | beq, bne, blt, bltu, bge, bgeu, jal, jalr |
+| System & fence | 3 | fence, ecall, ebreak |
+| **Total** | **40** | |
+
+**Comparison instructions:**
+
+- `slt s4, s3, s2` → s4 = 1 if s3 < s2 (signed), else 0.
+- `slti s4, s3, imm` → same but with a 12-bit **sign-extended** immediate.
+- `sltu` / `sltiu` → both operands treated as **unsigned** numbers.
+
+**`auipc` = add upper immediate to PC** (used for **PC-relative addressing**): `auipc ra, imm` → **ra = PC + (imm << 12)**.
+
+**His project flow from here:** assembly → machine-code conversion → Python simulator (no memory) → Python simulator + assembler (37 instructions) → I/O handling & exceptions → Python simulator, all 40 (complete ISA) → RTL implementation → RTL validation (UVM) → physical design.
 
 ---
 [⬅ Day 24](../Day-24-Stack-and-Pseudo-instructions/README.md) | [Index](../README.md) | [Day 26 ➡](../Day-26-R-Type-Encoding/README.md)
