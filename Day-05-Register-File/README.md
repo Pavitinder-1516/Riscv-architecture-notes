@@ -1,7 +1,7 @@
 # Day 05 — Register File, Instruction Examples with Registers
 
 > **Course:** Week 2, Video 3 &nbsp;|&nbsp; **Playlist #5** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ![Register file table](../diagrams/03_register_file_table.png)
 
@@ -45,6 +45,39 @@ sub  s0, t0, t1     # f  = t0 - t1
 ```
 
 The compiler breaks a complex expression into simple 3-operand steps, using temporaries.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 1,2 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**From flip-flops to the register file:** stack 32 flip-flops side by side → one 32-bit register. Make 32 of those (x0 … x31) → the **register file**.
+
+- **32 × 32 register file** with **two read ports** (A1→RD1, A2→RD2) and **one write port** (A3, WD3, enabled by **WE3**), all on one CLK.
+- Each address is **5 bits** because **2⁵ = 32** registers.
+- x0 is wired to **0**.
+
+**Which registers hold variables?** `s0–s11` and `t0–t6` are for **storing variables** (s = saved, t = temporary).
+
+**Book examples he walks through:**
+
+```asm
+# Code Example 6.4 — a = b + c          (s0=a, s1=b, s2=c)
+add s0, s1, s2
+
+# Code Example 6.5 — a = b + c - d      (s3=d, t0 = temporary)
+add t0, s1, s2        # t = b + c
+sub s0, t0, s3        # a = t - d
+
+# Example 6.1 — a = b - c;  f = (g + h) - (i + j)
+#   s0=a s1=b s2=c s3=f s4=g s5=h s6=i s7=j
+sub s0, s1, s2        # a  = b - c
+add t0, s4, s5        # t0 = g + h
+add t1, s6, s7        # t1 = i + j
+sub s3, t0, t1        # f  = (g + h) - (i + j)
+```
+
+**Try it:** with g=10, h=5, i=3, j=4 → t0 = 15, t1 = 7, f = **8**.
 
 ---
 [⬅ Day 04](../Day-04-What-is-a-Register/README.md) | [Index](../README.md) | [Day 06 ➡](../Day-06-ADDI-2s-Complement-Sign-Extension/README.md)
