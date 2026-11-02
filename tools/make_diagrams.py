@@ -991,6 +991,202 @@ def d_osoc_flow():
     save(f, "43_osoc_design_flow.png")
 
 
+def d_course_plan():
+    f, ax = fig(14, 5.4)
+    ax.set_xlim(0, 140)
+    title(ax, "Rashid's plan: four modules, about one year (evenings and weekends)", "goal: a low-cost, low-power RV32I core, built only with free / open-source tools, verified well enough to be a real IP")
+    items = [("1. Architecture\n(spec / ISA)\n~2 months", C["green"], "THIS course"),
+             ("2. RTL in\nSystemVerilog\n+ basic tests\n~2 months", C["blue"], "Python model of\nthe CPU = reference"),
+             ("3. Thorough\nverification\n(UVM)\n2-3 months", C["amber"], "compare SV output\nwith Python model"),
+             ("4. Physical design\n(open-source,\nlow power)\n2-3 months", C["rose"], "synthesis, P&R,\nCTS, timing, DRC")]
+    x = 4
+    for i, (t, c, n) in enumerate(items):
+        box(ax, x, 18, 28, 20, t, fc=c, fs=9.6, bold=(i == 0))
+        ax.text(x + 14, 12, n, ha="center", va="top", fontsize=8.6, color=C["mute"])
+        if i < 3:
+            arrow(ax, x + 28, 28, x + 34, 28)
+        x += 34
+    save(f, "44_course_plan.png")
+
+
+def d_shift_examples():
+    f, ax = fig(14, 8.4)
+    ax.set_xlim(0, 140)
+    title(ax, "Shifts on an 8-bit register: multiply / divide by powers of 2", "red = bits thrown out, green = bits filled in")
+    rows = [("6 << 2", "00000110", "00011000", "= 24 (6 x 4)  correct", 2, "L", C["green"]),
+            ("173 << 2", "10101101", "10110100", "= 180, not 692!  the top two 1-bits fell off (overflow)", 2, "L", C["green"]),
+            ("96 >> 2  (logical)", "01100000", "00011000", "= 24 (96 / 4)", 2, "R", C["green"]),
+            ("173 >> 2  (logical)", "10101101", "00101011", "= 43 (173 / 4 = 43.25, fraction dropped)", 2, "R", C["green"]),
+            ("-84 >> 2  (arithmetic)", "10101100", "11101011", "= -21 (-84 / 4): sign bit COPIED in", 2, "R", C["rose"])]
+    y = 70
+    for lab, a, b, res, n, d, fillc in rows:
+        ax.text(20, y + 2, lab, ha="right", va="center", fontsize=9.5, family="DejaVu Sans Mono")
+        for k, bit in enumerate(a):
+            fc = C["blue"]
+            if d == "L" and k < n: fc = "#fca5a5"
+            if d == "R" and k >= 8 - n: fc = "#fca5a5"
+            ax.add_patch(Rectangle((22 + k * 3.6, y), 3.6, 4, fc=fc, ec="white"))
+            ax.text(22 + k * 3.6 + 1.8, y + 2, bit, ha="center", va="center", fontsize=9, family="DejaVu Sans Mono")
+        ax.text(53, y + 2, "->", ha="center", va="center", fontsize=11)
+        for k, bit in enumerate(b):
+            fc = C["blue"]
+            if d == "L" and k >= 8 - n: fc = fillc
+            if d == "R" and k < n: fc = fillc
+            ax.add_patch(Rectangle((57 + k * 3.6, y), 3.6, 4, fc=fc, ec="white"))
+            ax.text(57 + k * 3.6 + 1.8, y + 2, bit, ha="center", va="center", fontsize=9, family="DejaVu Sans Mono")
+        ax.text(88, y + 2, res, va="center", fontsize=9.3)
+        y -= 12.5
+    ax.text(70, 5, "Shift left by n = multiply by 2^n.   Shift right by n = divide by 2^n.   No 'shift left arithmetic' exists.",
+            ha="center", fontsize=9.8, weight="bold")
+    save(f, "45_shift_8bit_examples.png")
+
+
+def d_flipflop():
+    f, ax = fig(13, 6.4)
+    ax.set_xlim(0, 130)
+    title(ax, "From one flip-flop to the register file", "a flip-flop stores 1 bit; 32 flip-flops = one 32-bit register; 32 registers = the register file")
+    box(ax, 10, 20, 20, 24, "", fc=C["violet"])
+    ax.text(20, 40, "D flip-flop", ha="center", weight="bold", fontsize=9.5)
+    for lab, y in [("D", 36), ("EN", 30), ("RST", 24)]:
+        arrow(ax, 2, y, 10, y); ax.text(1, y, lab, ha="right", va="center", fontsize=9)
+    ax.plot([10, 13, 10], [22.5, 21, 19.5], color=C["ink"]); ax.text(1, 21, "CLK", ha="right", va="center", fontsize=9)
+    arrow(ax, 30, 32, 38, 32); ax.text(39, 32, "Q", va="center", fontsize=9)
+    ax.text(20, 14, "on a clock edge, IF EN = 1:\nQ <- D   (RST puts it in a known state)", ha="center", va="top", fontsize=8.6)
+    arrow(ax, 44, 32, 52, 32, "x 32")
+    for i in range(8):
+        ax.add_patch(Rectangle((54 + i * 4, 28), 4, 8, fc=C["violet"], ec="white"))
+    ax.text(70, 40, "one 32-bit register", ha="center", fontsize=9)
+    arrow(ax, 88, 32, 96, 32, "x 32")
+    for i in range(6):
+        ax.add_patch(Rectangle((98, 44 - i * 5), 28, 4.2, fc=C["violet"], ec="white"))
+        ax.text(112, 46.1 - i * 5, ["x0 = 0 (always)", "x1 ra", "x2 sp", "...", "x30 t5", "x31 t6"][i], ha="center", va="center", fontsize=8)
+    ax.text(112, 12, "register file 32 x 32 bits\nread 2, write 1 per cycle", ha="center", va="top", fontsize=8.8)
+    save(f, "46_flipflop_to_regfile.png")
+
+
+def d_stack_preserved():
+    f, ax = fig(13.5, 7.2)
+    ax.set_xlim(0, 135)
+    title(ax, "diffofsums: saving everything vs following the caller/callee rules", "only s3 is 'preserved' (callee must save it); t0 and t1 are the caller's job")
+    for k, (x0, ttl, slots, sp_off) in enumerate([(8, "Before: save s3, t0, t1  (sp - 12)", ["s3", "t0", "t1"], 12),
+                                                  (78, "After: save only s3  (sp - 4)", ["s3"], 4)]):
+        ax.text(x0 + 22, 60, ttl, ha="center", weight="bold", fontsize=10, color=C["f3"] if k == 0 else "#15803d")
+        y = 52
+        ax.add_patch(Rectangle((x0 + 10, y), 24, 5, fc=C["slate"], ec=C["ink"], lw=0.8))
+        ax.text(x0 + 22, y + 2.5, "caller's data", ha="center", va="center", fontsize=8.5)
+        ax.text(x0 + 36, y + 2.5, "<- sp before the call", va="center", fontsize=8, color=C["mute"])
+        for i, r in enumerate(slots):
+            yy = y - 5 * (i + 1)
+            ax.add_patch(Rectangle((x0 + 10, yy), 24, 5, fc=C["green"] if r.startswith("s") else C["amber"], ec=C["ink"], lw=0.8))
+            ax.text(x0 + 22, yy + 2.5, f"saved {r}", ha="center", va="center", fontsize=8.5)
+            ax.text(x0 + 8, yy + 2.5, f"{(len(slots)-1-i)*4}(sp)", ha="right", va="center", fontsize=8, family="DejaVu Sans Mono")
+        ax.text(x0 + 36, y - 5 * len(slots) + 2.5, f"<- sp after addi sp, sp, -{sp_off}", va="center", fontsize=8, color=C["op"], weight="bold")
+    code1 = "addi sp, sp, -12\nsw   s3, 8(sp)\nsw   t0, 4(sp)\nsw   t1, 0(sp)\n...\nlw   t1, 0(sp)\nlw   t0, 4(sp)\nlw   s3, 8(sp)\naddi sp, sp, 12"
+    code2 = "addi sp, sp, -4\nsw   s3, 0(sp)\n...\nlw   s3, 0(sp)\naddi sp, sp, 4"
+    ax.text(18, 28, code1, va="top", fontsize=8.6, family="DejaVu Sans Mono")
+    ax.text(88, 28, code2, va="top", fontsize=8.6, family="DejaVu Sans Mono")
+    save(f, "47_preserved_stack.png")
+
+
+def d_func_addresses():
+    f, ax = fig(13.5, 6.4)
+    ax.set_xlim(0, 135)
+    title(ax, "Case I: calling simple() - what jal and jr do", "addresses from the book example (hex)")
+    box(ax, 6, 14, 52, 34, "", fc=C["blue"])
+    ax.text(32, 44.5, "main", ha="center", weight="bold")
+    for i, (a, t, col) in enumerate([("0x00000300", "jal  simple", C["f3"]), ("0x00000304", "add  s0, s1, s2  <- back", C["ink"]), ("...", "", C["ink"])]):
+        ax.text(9, 38 - i * 6, a, fontsize=9, family="DejaVu Sans Mono", color=C["mute"])
+        ax.text(26, 38 - i * 6, t, fontsize=9, family="DejaVu Sans Mono", color=col)
+    box(ax, 86, 24, 42, 16, "", fc=C["green"])
+    ax.text(107, 36.5, "simple", ha="center", weight="bold")
+    ax.text(89, 30, "0x0000051C", fontsize=9, family="DejaVu Sans Mono", color=C["mute"])
+    ax.text(108, 30, "jr  ra", fontsize=9, family="DejaVu Sans Mono", color=C["f3"])
+    arrow(ax, 58, 38, 86, 34, "1) ra = 0x304   2) PC = 0x51C", rad=-0.2, toff=(0, 5))
+    arrow(ax, 86, 28, 58, 32, "3) PC = ra = 0x304", rad=-0.2, toff=(0, -5.5))
+    ax.text(67, 6, "jal = jump AND link (save the return address in ra).   jr ra = jump back to the address in ra.",
+            ha="center", fontsize=9.5)
+    save(f, "48_function_call_addresses.png")
+
+
+def d_sb_wiring():
+    f, ax = fig(14, 8)
+    ax.set_xlim(0, 140)
+    title(ax, "How the hardware rebuilds the 32-bit immediate (S-type vs B-type)", "same instruction bits feed the same immediate bits wherever possible -> fewer wires, simpler hardware")
+    def row(y, lab, parts):
+        ax.text(14, y + 2.5, lab, ha="right", va="center", fontsize=9.5, weight="bold")
+        x = 16
+        for t, w, c in parts:
+            ax.add_patch(Rectangle((x, y), w, 5, fc=c, ec="white", lw=1.5))
+            ax.text(x + w / 2, y + 2.5, t, ha="center", va="center", fontsize=8.3)
+            x += w
+    S = C["amber"]; B = C["rose"]; G = "#d1d5db"; SX = "#fde68a"
+    ax.text(70, 62, "S-type (sw, sh, sb): offset = 12 bits", ha="center", fontsize=10, weight="bold")
+    row(52, "instruction", [("imm[11:5] (31:25)", 30, S), ("rs2", 14, G), ("rs1", 14, G), ("f3", 8, G), ("imm[4:0] (11:7)", 22, S), ("opcode", 18, G)])
+    row(43, "32-bit imm", [("bits 31..12 = copies of imm[11] (sign)", 52, SX), ("imm[11:5]", 30, S), ("imm[4:0]", 24, S)])
+    ax.text(70, 34, "B-type (beq, bne ...): offset = 13 bits, bit 0 is always 0 (not stored)", ha="center", fontsize=10, weight="bold")
+    row(24, "instruction", [("[12|10:5] (31:25)", 30, B), ("rs2", 14, G), ("rs1", 14, G), ("f3", 8, G), ("[4:1|11] (11:7)", 22, B), ("opcode", 18, G)])
+    row(15, "32-bit imm", [("bits 31..13 = copies of imm[12]", 44, SX), ("[12]", 8, B), ("[11]", 8, B), ("imm[10:5]", 24, B), ("imm[4:1]", 18, B), ("0", 4, G)])
+    ax.text(70, 6, "imm[10:5] and imm[4:1] sit in the SAME instruction bits in both formats; only bit 11 moves (to bit 7) and bit 0 is hard-wired to 0.",
+            ha="center", fontsize=9.2, color=C["mute"])
+    save(f, "49_s_b_immediate_wiring.png")
+
+
+def d_beq_example():
+    f, ax = fig(12.5, 6.6)
+    ax.set_xlim(0, 125)
+    title(ax, "beq s0, t5, L1: the label becomes an OFFSET from the branch", "book example: the branch is at 0x70, L1 is at 0x80")
+    rows = [("0x70", "beq  s0, t5, L1", C["rose"]), ("0x74", "add  s1, s2, s3", "white"), ("0x78", "sub  s7, s8, s9", "white"),
+            ("0x7C", "lw   t2, 32(t3)", "white"), ("0x80", "L1: addi s1, s1, 1", C["green"])]
+    for i, (a, t, c) in enumerate(rows):
+        y = 48 - i * 8
+        ax.text(14, y + 3, a, ha="right", va="center", family="DejaVu Sans Mono", fontsize=9.5, color=C["mute"])
+        ax.add_patch(Rectangle((16, y), 44, 6, fc=c, ec=C["ink"], lw=0.7))
+        ax.text(19, y + 3, t, va="center", family="DejaVu Sans Mono", fontsize=9.5)
+    arrow(ax, 62, 51, 62, 19, rad=-0.4, color=C["op"])
+    ax.text(74, 40, "offset = 0x80 - 0x70\n= 16 bytes = 4 instructions", fontsize=10, color=C["op"], weight="bold")
+    ax.text(74, 26, "if s0 == t5:  PC = PC + 16\nelse:          PC = PC + 4", fontsize=9.5, family="DejaVu Sans Mono")
+    ax.text(62, 6, "Machine code: 0x01E40863 (13-bit offset 0 0000 0001 0000; bit 0 not stored)", ha="center", fontsize=9.3, color=C["mute"])
+    save(f, "50_beq_offset_example.png")
+
+
+def d_jump_ranges():
+    f, ax = fig(14, 7)
+    ax.set_xlim(0, 140)
+    title(ax, "How far can each jump go?", "all of them are relative: to the PC, or to a register")
+    rows = [("beq / bne / blt ... (B-type)", "PC + 13-bit offset", "+/- 4 KB", 10, C["rose"]),
+            ("jalr rd, imm(rs1) (I-type)", "rs1 + 12-bit offset", "rs1 +/- 2 KB", 8, C["green"]),
+            ("jal rd, label (J-type)", "PC + 21-bit offset", "+/- 1 MB", 40, C["violet"]),
+            ("auipc + jalr", "PC + full 32 bits", "+/- 2 GB", 60, C["blue"])]
+    y = 50
+    for name, how, rng, w, c in rows:
+        ax.text(36, y + 3, name, ha="right", va="center", fontsize=9.3, family="DejaVu Sans Mono")
+        ax.add_patch(Rectangle((38, y), w, 6, fc=c, ec=C["ink"], lw=0.7))
+        ax.text(38 + w + 1.5, y + 3, f"{how}  ->  {rng}", va="center", fontsize=9)
+        y -= 10
+    ax.text(70, 6, "10 bits -> 1 K,  20 bits -> 1 M,  30 bits -> 1 G.  A signed n-bit offset reaches about +/- half of 2^n.   (bars not to scale)",
+            ha="center", fontsize=9.3, color=C["mute"])
+    save(f, "51_jump_ranges.png")
+
+
+def d_format_counts():
+    f, ax = fig(14, 6.6)
+    ax.set_xlim(0, 140)
+    title(ax, "The 37 instructions grouped by format", "a format is NOT a new instruction - it is how the 32 bits are arranged")
+    items = [("R-type", "10", "3 registers\n(rd, rs1, rs2)", "add sub sll slt sltu\nxor srl sra or and", C["amber"]),
+             ("I-type", "15", "2 registers\n+ 12-bit imm", "addi slti sltiu xori ori\nandi slli srli srai\nlb lh lw lbu lhu jalr", C["green"]),
+             ("S/B-type", "9", "2 registers\n+ 12-bit (B: 13-bit) imm", "sb sh sw\nbeq bne blt bge bltu bgeu", C["rose"]),
+             ("U/J-type", "3", "1 register\n+ 20-bit (J: 21-bit) imm", "lui auipc jal", C["violet"])]
+    for i, (n, cnt, regs, ins, c) in enumerate(items):
+        x = 4 + i * 34
+        box(ax, x, 12, 30, 44, "", fc=c)
+        ax.text(x + 15, 52, n, ha="center", weight="bold", fontsize=12)
+        ax.text(x + 15, 45, cnt + " instr.", ha="center", fontsize=11, color=C["ink"])
+        ax.text(x + 15, 36, regs, ha="center", va="center", fontsize=9)
+        ax.text(x + 15, 22, ins, ha="center", va="center", fontsize=8.4, family="DejaVu Sans Mono")
+    ax.text(70, 5, "10 + 15 + 9 + 3 = 37   (+ fence, ecall, ebreak = 40)", ha="center", fontsize=10, weight="bold")
+    save(f, "52_format_counts.png")
+
+
 def d_branch():
     f, ax = fig(11, 6.4)
     title(ax, "Conditional branch:  beq / bne / blt / bge / bltu / bgeu  rs1, rs2, label")
@@ -1011,6 +1207,8 @@ if __name__ == "__main__":
     d_caller_callee(); d_formats(); d_encodings(); d_imm_scramble("B"); d_imm_scramble("J")
     d_label_offset(); d_soc(); d_memmap(); d_interrupt12(); d_exception(); d_alignment(); d_debug()
     d_isa_overview(); d_cpu_datapath(); d_cpu_mem_io(); d_simple_datapath()
+    d_course_plan(); d_shift_examples(); d_flipflop(); d_stack_preserved(); d_func_addresses()
+    d_sb_wiring(); d_beq_example(); d_jump_ranges(); d_format_counts()
     d_osoc(); d_neighborhood(); d_memmap_lecture(); d_isr_fan(); d_directives_layout(); d_osoc_flow()
     d_branch()
     vflow("12_if_else_flow.png", "if (a == b) x = 1; else x = 2;  ->  assembly",
