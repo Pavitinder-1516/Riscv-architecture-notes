@@ -1,7 +1,7 @@
 # Day 06 — Why Assembly? ADDI Instruction, 2's Complement, Sign Extension
 
 > **Course:** Week 2, Video 4 &nbsp;|&nbsp; **Playlist #6** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## Why learn assembly at all?
 
@@ -51,6 +51,40 @@ The ALU works on 32 bits, but the immediate has only 12. The hardware **copies b
 | `li rd, imm` (small) | `addi rd, x0, imm` |
 | `mv rd, rs` | `addi rd, rs, 0` |
 | `nop` | `addi x0, x0, 0` |
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 1,2 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**Immediates:** `addi` carries a **12-bit immediate** that can be **positive or negative** (two's complement).
+
+**Book examples:**
+
+```asm
+# Code Example 6.6 — immediate operands  (s0=a, s1=b)
+addi s0, s0, 4        # a = a + 4
+addi s1, s0, -12      # b = a - 12
+
+# Code Example 6.7 — initialising values (s4=i, s5=x, s6=y)
+addi s4, zero, 0      # i = 0
+addi s5, zero, 2032   # x = 2032
+addi s6, zero, -78    # y = -78
+```
+
+**Two's complement on 4 bits** (weights −8, 4, 2, 1):
+
+| Bits | Value |
+|---|---|
+| 0111 | +7 (largest) |
+| 1000 | −8 (smallest) |
+| 1111 | −1 |
+
+Range for n bits = **−2ⁿ⁻¹ … +(2ⁿ⁻¹ − 1)**. For the 12-bit immediate: **−2048 … +2047**.
+
+**Sign extension worked example:** 5-bit `10111` = −16 + 0 + 4 + 2 + 1 = **−9**. Copy the sign bit to make it 8 bits: `1111 0111` = −128 + 64 + 32 + 16 + 0 + 4 + 2 + 1 = −128 + 119 = **−9** ✔. Same value, more bits — that is exactly what the CPU does to the 12-bit immediate before adding it to a 32-bit register.
+
+He also shows a **Raspberry Pi** board with its ARM Cortex-A7 chip, to remind you that a CPU like ours is just one block on a real board.
 
 ---
 [⬅ Day 05](../Day-05-Register-File/README.md) | [Index](../README.md) | [Day 07 ➡](../Day-07-LUI-and-ADDI/README.md)
