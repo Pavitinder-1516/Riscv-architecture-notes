@@ -1201,6 +1201,95 @@ def d_branch():
     save(f, "11_branch_flow.png")
 
 
+def d_rashid_memory():
+    f, ax = fig(13.5, 7.0)
+    ax.set_xlim(0, 135)
+    title(ax, "Rashid's memory example: 5 words, byte addresses, lw and sw",
+          "each row = 1 word = 4 bytes, so word addresses go 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 ...")
+    words = [("0x14", "00 00 00 2A", "word 5  (after sw t3, 20(zero))", C["green"]),
+             ("0x10", "CD 19 A6 58", "word 4", C["slate"]),
+             ("0x0C", "40 F3 07 88", "word 3", C["slate"]),
+             ("0x08", "01 EE 28 42", "word 2  (lw s7, 8(zero) reads this)", C["amber"]),
+             ("0x04", "F2 F1 AC 07", "word 1", C["slate"]),
+             ("0x00", "AB CD EF 78", "word 0", C["slate"])]
+    y0 = 52
+    for i, (a, d, lab, col) in enumerate(words):
+        y = y0 - i * 7
+        ax.text(14, y + 3, a, ha="right", va="center", fontsize=10, family="DejaVu Sans Mono")
+        for k, b in enumerate(d.split()):
+            ax.add_patch(Rectangle((16 + k * 9, y), 9, 6, fc=col, ec=C["ink"], lw=0.8))
+            ax.text(20.5 + k * 9, y + 3, b, ha="center", va="center", fontsize=10, family="DejaVu Sans Mono")
+        ax.text(54, y + 3, lab, va="center", fontsize=9.5)
+    ax.text(20.5, y0 + 6.8, "MSB", ha="center", fontsize=8, color=C["mute"])
+    ax.text(47.5, y0 + 6.8, "LSB", ha="center", fontsize=8, color=C["mute"])
+    box(ax, 96, 30, 36, 12, "lw s7, 8(zero)\naddress = 0 + 8 = 0x08\ns7 = 0x01EE2842", fc=C["amber"], fs=9.5)
+    box(ax, 96, 12, 36, 14, "addi t3, zero, 42\nsw t3, 20(zero)\naddress = 0 + 20 = 0x14\nmem = 0x0000002A (42)", fc=C["green"], fs=9.5)
+    save(f, "53_rashid_memory_words.png")
+
+
+def d_rashid_stack_case3():
+    f, ax = fig(13.5, 6.6)
+    ax.set_xlim(0, 135)
+    title(ax, "Case III: diffofsums saves s3, t0, t1 on the stack (book example 6.24)",
+          "(a) before the call   (b) inside the function   (c) after it returns - sp is back where it started")
+    addrs = ["BEF0F0FC", "BEF0F0F8", "BEF0F0F4", "BEF0F0F0"]
+    for k, (x0, cells, sp_i) in enumerate([(4, ["?", "", "", ""], 0), (49, ["?", "s3", "t0", "t1"], 3), (94, ["?", "", "", ""], 0)]):
+        ax.text(x0 + 20, 54, "(" + "abc"[k] + ")", ha="center", weight="bold")
+        for i, a in enumerate(addrs):
+            y = 44 - i * 7
+            ax.text(x0 + 13, y + 3, a, ha="right", va="center", fontsize=8.5, family="DejaVu Sans Mono")
+            fc = C["green"] if cells[i] == "s3" else (C["amber"] if cells[i] in ("t0", "t1") else "white")
+            ax.add_patch(Rectangle((x0 + 14, y), 14, 6, fc=fc, ec=C["ink"], lw=0.8))
+            ax.text(x0 + 21, y + 3, cells[i], ha="center", va="center", fontsize=9.5)
+        ysp = 44 - sp_i * 7 + 3
+        ax.text(x0 + 30, ysp, "<- sp", va="center", fontsize=9, color=C["op"], weight="bold")
+    ax.text(49 + 30, 44 - 1 * 7 + 3, " 8(sp)", va="center", fontsize=8, color=C["mute"], family="DejaVu Sans Mono")
+    ax.text(49 + 30, 44 - 2 * 7 + 3, " 4(sp)", va="center", fontsize=8, color=C["mute"], family="DejaVu Sans Mono")
+    ax.text(67.5, 6, "addi sp, sp, -12  -> sw s3, 8(sp) / sw t0, 4(sp) / sw t1, 0(sp) -> work -> lw x3 -> addi sp, sp, 12 -> jr ra",
+            ha="center", fontsize=8.6, family="DejaVu Sans Mono")
+    save(f, "54_rashid_stack_case3.png")
+
+
+def d_rashid_lui_addi():
+    f, ax = fig(13.5, 6.0)
+    ax.set_xlim(0, 135)
+    title(ax, "Building a 32-bit constant with lui + addi (book examples 6.8 and 6.9)",
+          "addi's 12-bit immediate is SIGN-extended, so when bit 11 is 1 the upper part must be one bigger")
+    rows = [("0xABCDE123", "lui s2, 0xABCDE", "addi s2, s2, 0x123", "bit 11 of 0x123 = 0  ->  no correction", C["green"]),
+            ("0xFEEDA987", "lui s2, 0xFEEDB", "addi s2, s2, -1657", "0x987 has bit 11 = 1 -> it means -1657,\nso lui loads 0xFEEDA + 1 = 0xFEEDB", C["rose"])]
+    for i, (goal, l1, l2, note, col) in enumerate(rows):
+        y = 34 - i * 22
+        box(ax, 3, y, 22, 12, "goal\n" + goal, fc=C["blue"], fs=10)
+        box(ax, 30, y, 30, 12, "1) " + l1 + "\n2) " + l2, fc=col, fs=9.5)
+        box(ax, 65, y, 66, 12, note, fc="white", fs=9.5)
+        arrow(ax, 25, y + 6, 30, y + 6); arrow(ax, 60, y + 6, 65, y + 6)
+    save(f, "55_rashid_lui_addi.png")
+
+
+def d_rashid_nonleaf():
+    f, ax = fig(13.5, 6.8)
+    ax.set_xlim(0, 135)
+    title(ax, "Function inside a function (book example 6.27): who saves what",
+          "f1 is a CALLEE (of main) and a CALLER (of f2) at the same time")
+    cells = [("ra", C["green"], "saved by f1 as callee (it will call f2, which overwrites ra)"),
+             ("s4", C["green"], "saved by f1 as callee (preserved register it uses for i)"),
+             ("s5", C["green"], "saved by f1 as callee (preserved register it uses for x)"),
+             ("a0", C["amber"], "saved by f1 as CALLER around  jal f2  (f2 may change a0)"),
+             ("a1", C["amber"], "saved by f1 as CALLER around  jal f2"),
+             ("s4", C["violet"], "saved by f2 as callee (f2 uses s4 for r)")]
+    for i, (r, col, note) in enumerate(cells):
+        y = 50 - i * 7
+        ax.add_patch(Rectangle((10, y), 14, 6, fc=col, ec=C["ink"], lw=0.8))
+        ax.text(17, y + 3, r, ha="center", va="center", fontsize=10, weight="bold")
+        ax.text(27, y + 3, note, va="center", fontsize=9.3)
+    ax.text(17, 58, "stack (grows down)", ha="center", fontsize=9, color=C["mute"])
+    ax.text(5, 50 - 2 * 7 + 3, "f1's\nframe", ha="center", va="center", fontsize=8, color=C["mute"])
+    ax.text(5, 50 - 5 * 7 + 3, "f2", ha="center", va="center", fontsize=8, color=C["mute"])
+    ax.text(10, 4, "Golden rule: preserved = s0-s11, ra, sp (callee restores them);  NOT preserved = t0-t6, a0-a7 (caller saves if it still needs them).",
+            fontsize=9, color=C["ink"])
+    save(f, "56_rashid_nonleaf_stack.png")
+
+
 if __name__ == "__main__":
     d_roadmap(); d_compile_flow(); d_regfile_table(); d_regfile_block(); d_sign_ext(); d_lui_addi()
     d_memory_pc(); d_lw_sw(); d_logic(); d_shifts(); d_endian(); d_function_call(); d_stack()
@@ -1211,6 +1300,7 @@ if __name__ == "__main__":
     d_sb_wiring(); d_beq_example(); d_jump_ranges(); d_format_counts()
     d_osoc(); d_neighborhood(); d_memmap_lecture(); d_isr_fan(); d_directives_layout(); d_osoc_flow()
     d_branch()
+    d_rashid_memory(); d_rashid_stack_case3(); d_rashid_lui_addi(); d_rashid_nonleaf()
     vflow("12_if_else_flow.png", "if (a == b) x = 1; else x = 2;  ->  assembly",
           [("bne a0, a1, ELSE      # test the OPPOSITE condition", "dec"),
            ("THEN:  li t0, 1", "proc"), ("j END                # skip the else part", "proc"),
