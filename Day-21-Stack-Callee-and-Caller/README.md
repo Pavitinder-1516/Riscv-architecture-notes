@@ -1,7 +1,7 @@
 # Day 21 — Usage of the Stack by a Function that is Callee and Caller
 
 > **Course:** Week 5, Video 3 &nbsp;|&nbsp; **Playlist #21** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 A **non-leaf** function is called by someone (*callee*) and itself calls someone (*caller*). It **must** save `ra`, because its own `jal` will overwrite it.
 
@@ -71,6 +71,32 @@ fact(2)     │ ra→fact, s0=3 │
 fact(1)     │ ra→fact, s0=2 │ ← sp at the deepest point
             └───────────────┘ low
 ```
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 5 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+![Nonleaf function stack](../diagrams/56_rashid_nonleaf_stack.png)
+
+**Case IV — split the job between caller and callee** (book Table 6.3):
+
+| Preserved (**callee**-saved) | Non-preserved (**caller**-saved) |
+|---|---|
+| saved registers `s0–s11` | temporaries `t0–t6` |
+| return address `ra` | arguments `a0–a7` |
+| stack pointer `sp` | |
+| stack **above** the stack pointer | stack **below** the stack pointer |
+
+**Case V — Code Example 6.25:** with these rules `diffofsums` only has to save **s3** (`addi sp, sp, -4` / `sw s3, 0(sp)` … `lw s3, 0(sp)` / `addi sp, sp, 4`). And who saves t0, t1? **The caller (main), if it still needs them.**
+
+**Function inside another function — Code Example 6.27 (f1 calls f2):**
+
+- **f1 as callee** saves the preserved registers it uses: **ra, s4, s5** → 3 words (`addi sp, sp, -12`). It must save `ra` because `jal f2` will overwrite it.
+- **f1 as caller** saves the non-preserved values it still needs after the call: **a0, a1** (`addi sp, sp, -8` before `jal f2`, restore after). `t3` is not saved because f1 doesn't use it after the call.
+- **f2 as callee** saves only **s4** (it uses s4 for `r`).
+
+**What lives on the stack:** above `sp` → arguments beyond the 8th; below `sp` (the function's frame) → saved `t`, `a`, `s` registers, `ra`, local variables, local arrays.
 
 ---
 [⬅ Day 20](../Day-20-Stack-Backup-Registers/README.md) | [Index](../README.md) | [Day 22 ➡](../Day-22-Caller-vs-Callee-Saved/README.md)
