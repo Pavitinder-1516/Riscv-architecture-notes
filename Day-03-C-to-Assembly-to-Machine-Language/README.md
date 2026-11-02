@@ -1,7 +1,7 @@
 # Day 03 — C Language to Assembly to Machine Language
 
 > **Course:** Week 2, Video 1 &nbsp;|&nbsp; **Playlist #3** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** lecture transcript
+> **Notes source:** lecture transcript + Rashid's weekly notes
 
 Week 2 starts here. Week 1 was short (only two videos); this week has many more, building up gradually. Rashid's tip: if a basic part is already familiar, **increase the playback speed** and slow down again when something new comes up.
 
@@ -182,6 +182,30 @@ riscv64-unknown-elf-objdump -d add.o                               # assembly + 
 4. Datapath = the connected hardware the data flows through (registers, MUX, adder, memory); control = the sequenced enable/select signals that decide when things happen.
 5. The RISC-V specification requires it, and the compiler/assembler generate code assuming exactly 32 × 32-bit registers.
 6. 25 = `11001` = `0x19`.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 1,2 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+Rashid's one-page summary of the whole journey from a high-level line to bits:
+
+```
+Python:      a = b + c
+   │ compiler
+Assembly:    lw  t0, 0(x10)      # b
+             lw  t1, 4(x10)      # c
+             add t2, t0, t1      # a = b + c
+             sw  t2, 8(x10)      # store a
+   │ assembler
+Machine:     add t2, t0, t1  →  0000000 00110 00101 000 00111 0110011  =  0x006283B3
+```
+
+> ✏️ **Small correction:** the board shows the hex as `0x00628393`, but the binary written above it (`…00111 0110011`) is `0x006283B3` — opcode `0110011` (= 0x33) ends in **`B3`**, not `93`. I checked it with an assembler.
+
+Every instruction then goes through **Fetch → Decode → Execute → Write**. The hardware that does this = **datapath + control** = **combinational + sequential** logic. In his datapath sketch the instruction comes from **SRAM** (address 0 … 0xFFFFFFFF), the **PC** register has a `+1` adder (later corrected to +4 because memory is byte-addressed), and the `+` adder takes `t0` and `t1` and writes `t2`, each register having an **enable (en)**.
+
+**Videos he says to watch first:** his *Digital Logic Design* series, Topic 8 (binary, starting arithmetic) and Topic 9 (hexadecimal, binary addition/subtraction).
 
 ---
 [⬅ Day 02](../Day-02-RV32I-Just-in-Time-Approach/README.md) | [Index](../README.md) | [Day 04 ➡](../Day-04-What-is-a-Register/README.md)
