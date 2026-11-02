@@ -1,7 +1,7 @@
 # Day 16 — Unconditional Jump, If-Else and Switch-Case Implementation
 
 > **Course:** Week 4, Video 1 &nbsp;|&nbsp; **Playlist #16** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## Jump instructions
 
@@ -90,6 +90,22 @@ JT:     .word CASE0, CASE1, CASE2      # table of code addresses
 ```
 
 `jalr` (jump to a *register*) is what makes jump tables, function pointers and returns possible.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 4 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+- **`j` (jump)** — go to a label, no return.
+- **`jal` (jump and link)** and **`jr` (jump register)** — used for **function calls** (Day 23).
+
+**Code Example 6.14 — `j`:** everything between `j target` and `target:` is **not executed**.
+
+**`if`, `if-else`, `case`/`switch`** are all built from **conditional branches**:
+
+- **Code Example 6.15 (if):** `if (apples == oranges) f = g + h;` → `bne s0, s1, L1` (test the **opposite** condition and skip), then `add s2, s3, s4`, then `L1: sub s0, s0, s1`.
+- **Code Example 6.16 (if/else):** same `bne` to `L1` (the else part), and a **`j L2`** at the end of the *then* part so it skips the else part.
+- **Code Example 6.17 (switch/case):** `button` in s0, `amt` in s1. Each case loads its constant (`addi t0, zero, 1/2/3`), compares with `bne s0, t0, nextcase`, sets `amt` (20/50/100) and does `j done`. If nothing matches → `default: add s1, zero, zero` (amt = 0). It is exactly an `if / else if / else` chain.
 
 ---
 [⬅ Day 15](../Day-15-Week-3-Recap/README.md) | [Index](../README.md) | [Day 17 ➡](../Day-17-Loops/README.md)
