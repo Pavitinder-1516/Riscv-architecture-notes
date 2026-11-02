@@ -1,7 +1,7 @@
 # Day 26 — R-Type Instructions
 
 > **Course:** Week 6, Video 1 &nbsp;|&nbsp; **Playlist #26** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## The Big Picture — Six Formats
 
@@ -111,6 +111,44 @@ funct7=0100000  rs2=t1=00110  rs1=t0=00101  funct3=000  rd=t2=00111  opcode=0110
 ```
 0000000 01110 01101 100 01100 0110011
 ```
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 6 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**The 4 format families in one line each:**
+
+- **R-type** → 3 registers.
+- **I-type** → 2 registers + a 12-bit immediate.
+- **S/B-type** (store/branch) → 2 registers + a 12-bit (S) / 13-bit (B) immediate.
+- **U/J-type** (upper-imm/jump) → 1 register + a 20-bit (U) / 21-bit (J) immediate.
+
+**R-type field widths:** funct7 (7) | rs2 (5) | rs1 (5) | funct3 (3) | rd (5) | op (7).
+
+**Worked examples (verified with an assembler):**
+
+| Assembly | funct7, rs2, rs1, funct3, rd, op | Machine code |
+|---|---|---|
+| `add s2, s3, s4` | 0, 20, 19, 0, 18, 51 | **0x01498933** |
+| `sub t0, t1, t2` | 32, 7, 6, 0, 5, 51 | **0x407302B3** |
+
+**R-type opcode table (op = 51 for all):**
+
+| Instr | funct3 | funct7 |
+|---|---|---|
+| add | 0 | 0 |
+| sub | 0 | 32 |
+| sll | 1 | 0 |
+| slt | 2 | 0 |
+| sltu | 3 | 0 |
+| xor | 4 | 0 |
+| srl | 5 | 0 |
+| sra | 5 | 32 |
+| or | 6 | 0 |
+| and | 7 | 0 |
+
+`funct7 = 32` (bit 30 set) is what tells `sub` from `add` and `sra` from `srl`.
 
 ---
 [⬅ Day 25](../Day-25-All-40-Base-Instructions/README.md) | [Index](../README.md) | [Day 27 ➡](../Day-27-I-Type-Encoding/README.md)
