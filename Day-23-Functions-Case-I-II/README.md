@@ -1,85 +1,134 @@
 # Day 23 — Functions - Case I, Case II (4 Arguments, One Return Value)
 
 > **Course:** Week 4, Video 4 &nbsp;|&nbsp; **Playlist #23** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** lecture transcript
 
-![Function call](../diagrams/15_function_call_jal_jalr.png)
+## Why functions?
 
-## The calling convention (rules everyone agrees on)
+In C or any high-level language, if a piece of code is **repeated many times**, we write it **once** as a function and call it. If we later improve or fix it, we change only one place, and every call gets the update.
 
-1. Put arguments in **`a0 – a7`** (first 8 arguments).
-2. `jal ra, func` — saves the return address (PC + 4) in **`ra`** and jumps.
-3. The function computes; return value goes in **`a0`** (and `a1` for 64-bit values).
-4. `ret` (= `jalr x0, 0(ra)`) jumps back.
+Today: functions in assembly, and the start of the **stack**. Rashid builds it up in **4–5 cases**, each a little more complete. Today: cases I and II.
 
-## Case I — simple leaf function (no arguments / one argument)
+| Name | Meaning |
+|---|---|
+| **Caller** | the code that calls (here: `main`) |
+| **Callee** | the function being called |
 
-A **leaf function** calls no other function, so `ra` is never overwritten and it needs no stack if it only uses `t` and `a` registers.
-
-```c
-int inc(int x) { return x + 1; }
-```
-
-```asm
-inc:    addi a0, a0, 1        # argument x arrives in a0, result returned in a0
-        ret
-
-main:   li   a0, 41
-        jal  ra, inc          # a0 = 42
-```
-
-## Case II — 4 arguments, one return value
+## Case I: no arguments, no return value
 
 ```c
-int f(int g, int h, int i, int j) { return (g + h) - (i + j); }
+int main() {
+    simple();          // call
+    a = b + c;
+}
+void simple() {
+    return;
+}
 ```
+
+It does nothing useful — it's just to learn the **mechanics**.
+
+![Case I with addresses](../diagrams/48_function_call_addresses.png)
 
 ```asm
-# g=a0, h=a1, i=a2, j=a3 ; result in a0
-f:      add  t0, a0, a1       # g + h
-        add  t1, a2, a3       # i + j
-        sub  a0, t0, t1       # return value in a0
-        ret
-
-main:   li   a0, 10
-        li   a1, 20
-        li   a2, 3
-        li   a3, 7
-        jal  ra, f            # a0 = (10+20) - (3+7) = 20
+# address   instruction
+0x00000300  jal  simple          # call the function
+0x00000304  add  s0, s1, s2      # the next instruction
+...
+0x0000051C  simple: jr ra        # return
 ```
 
-Because `f` uses only `t0`, `t1` (caller-saved temporaries) it does not need to save anything. If it wanted to use `s0`, it would have to save/restore it on the **stack** — that is Week 5.
+### jal — "jump and link" does two things
 
-## What if there are more than 8 arguments?
+1. **Save the return address**: the next instruction is at `0x300 + 4 = 0x304` (byte-addressable memory, each instruction is 4 bytes) → put **0x304 into `ra`**.
+2. **Jump** to the function: PC = `0x51C`.
 
-Arguments 9, 10, … are passed **on the stack** (the caller stores them at `0(sp)`, `4(sp)` … before the call).
+`ra` (**return address**) is one of the special registers from the register-file video.
 
----
+### jr ra — "jump register"
 
-## Week 4 Key Takeaways
+Jumps to the address stored in `ra` → back to `0x304`, and `main` continues.
 
-- `jal` = jump + save return address; `jalr` = jump to register (returns, tables, pointers).
-- `j`, `ret`, `call`, `jr` are pseudo-instructions.
-- Loops are backward branches.
-- `lb/lh` sign-extend, `lbu/lhu` zero-extend; RISC-V is little-endian.
-- Calling convention: `a0–a7` in, `a0` out, `ra` holds the return address.
+Machine code check: `jal ra, simple` from 0x300 to 0x51C is an offset of 0x21C = 540 → `0x21C000EF`.
+
+## Case II: arguments and a return value
+
+**Arguments go in `a0`–`a7`** — up to **8** arguments (more than 8 → stack, coming next).
+
+Book example:
+
+```c
+int main() {
+    int y;
+    y = diffofsums(2, 3, 4, 5);
+}
+int diffofsums(int f, int g, int h, int i) {
+    int result;                    // a LOCAL variable
+    result = (f + g) - (h + i);
+    return result;
+}
+```
+
+- `y` belongs to main; `result` is a **local variable** — it only exists inside the function and disappears when the function ends.
+
+```asm
+main:
+      addi a0, zero, 2      # f = 2   (argument 1 in a0)
+      addi a1, zero, 3      # g = 3   (argument 2 in a1)
+      addi a2, zero, 4      # h = 4
+      addi a3, zero, 5      # i = 5
+      jal  diffofsums       # ra = next instruction, jump
+      add  s7, a0, zero     # y = return value (from a0)
+
+diffofsums:
+      add  t0, a0, a1       # t0 = f + g
+      add  t1, a2, a3       # t1 = h + i
+      sub  s3, t0, t1       # result = (f + g) - (h + i)
+      add  a0, s3, zero     # put the return value in a0
+      jr   ra               # return
+```
+
+![Function call with arguments](../diagrams/15_function_call_jal_jalr.png)
+
+### The handshake
+
+| Agreement | Register |
+|---|---|
+| arguments go in | **a0, a1, a2 … a7** (in order) |
+| the return value comes back in | **a0** |
+| where to return to | **ra** |
+
+Because both sides follow the same rule, `main` knows to look in **a0** after the call, and the function knows where its arguments are. Every call `diffofsums(8, 9, 11, 12)` just puts different values in a0–a3.
+
+Result here: (2 + 3) − (4 + 5) = **−4**, returned in a0, copied into s7 (y).
+
+### Pseudo-instructions
+
+`jal diffofsums` and `jr ra` are **pseudo-instructions** — convenient names; the assembler turns them into real base instructions (`jal ra, offset` and `jalr x0, 0(ra)`). Covered on Day 30.
+
+## Not finished yet
+
+This function changes **s3, t0, t1** — which `main` might be using! And what if there are **more than 8 arguments**? Both need the **stack** → next videos (Days 20–22).
+
+## Key points
+
+- `jal label`: save PC + 4 in `ra`, then jump. `jr ra`: jump back.
+- Arguments in a0–a7, return value in a0, return address in ra.
+- Local variables live only inside the function.
 
 ## Practice Questions
 
-1. What is the difference between `lb` and `lbu` when the byte is `0x80`?
-2. Write a loop that sets the 10 bytes starting at `a0` to zero.
-3. Why must `j label` use `x0` as its `rd`?
-4. Write a function `max(a, b)` returning the larger signed value.
-5. In `toupper`, why is `andi t1, t1, 0xDF` the same as subtracting 32 for lowercase letters?
+1. `jal` is at 0x1000. What value goes into ra?
+2. Where does the 3rd argument of a function go?
+3. Where does main find the function's result?
+4. What does `diffofsums(10, 5, 2, 1)` return?
 
-<details><summary>Answers</summary>
+**Answers**
 
-1. `lb` → `0xFFFFFF80` (−128); `lbu` → `0x00000080` (128).
-2. `li t0, 10` ; `L: sb x0, 0(a0)` ; `addi a0, a0, 1` ; `addi t0, t0, -1` ; `bnez t0, L`.
-3. A plain jump does not need a return address, so it is discarded by writing x0.
-4. `max: bge a0, a1, 1f` ; `mv a0, a1` ; `1: ret`.
-5. Lowercase letters have bit 5 (0x20) set; clearing it (mask 0xDF) subtracts exactly 32.
-</details>
+1. 0x1004.
+2. a2.
+3. In a0.
+4. (10 + 5) − (2 + 1) = 12.
 
 ---
 [⬅ Day 22](../Day-22-Caller-vs-Callee-Saved/README.md) | [Index](../README.md) | [Day 24 ➡](../Day-24-Stack-and-Pseudo-instructions/README.md)
