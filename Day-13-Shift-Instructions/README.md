@@ -1,7 +1,7 @@
 # Day 13 — Shift Instructions
 
 > **Course:** Week 3, Video 5 &nbsp;|&nbsp; **Playlist #13** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** lecture transcript
+> **Notes source:** lecture transcript + Rashid's weekly notes
 
 ## Why we learn every instruction (the bigger plan)
 
@@ -126,6 +126,26 @@ With `s5 = 0xF000_0F0F` (a value chosen for these notes):
 3. A 32-bit register can only be shifted 0–31 places, which fits in 5 bits.
 4. 400 needs 9 bits; the top bit falls off → 400 − 256 = 144.
 5. `slli t0, a0, 4`.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 3 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**Book Figure 6.3 — shift with an immediate amount**, s5 = `0xFF1C10E7` (`1111 1111 0001 1100 0001 0000 1110 0111`):
+
+| Instruction | Result | Why |
+|---|---|---|
+| `slli t0, s5, 7` | **0x8E087380** | 7 zeros come in from the right |
+| `srli s1, s5, 17` | **0x00007F8E** | 17 zeros come in from the left |
+| `srai t2, s5, 3` | **0xFFE3821C** | sign bit (1) is copied 3 times |
+
+(Checked with Python.)
+
+- **`sll`, `srl`, `sra`** take the shift amount from a **register**: `sll t0, s5, s2` → both source operands are registers.
+- **`slli`, `srli`, `srai`** take a **5-bit unsigned** immediate (0 … 31), because you can never usefully shift a 32-bit value by more than 31.
+
+His 8-bit check: 6 = `0000 0110`; shift left 2 → `0001 1000` = 24 (×4); shift left 2 again → `0110 0000` = 96 (×4).
 
 ---
 [⬅ Day 12](../Day-12-Logical-Immediate-Instructions/README.md) | [Index](../README.md) | [Day 14 ➡](../Day-14-Conditional-Branches/README.md)
