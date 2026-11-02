@@ -6,7 +6,7 @@ Each day (one per video) has detailed theory, diagrams, worked examples, runnabl
 
 > 📺 Course playlist: https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH
 
-> 📄 **Full notes as one PDF (Day 01–40, 112 pages):** [PDF/40 day Rashid Risc v.pdf](<PDF/40 day Rashid Risc v.pdf>)
+> 📄 **Full notes as one PDF (Day 01–40, 134 pages):** [PDF/40 day Rashid Risc v.pdf](<PDF/40 day Rashid Risc v.pdf>)
 
 ![Course roadmap](diagrams/01_course_roadmap.png)
 
