@@ -1,7 +1,7 @@
 # Day 09 — Memory Architecture - Why PC+4 Has the Next Word
 
 > **Course:** Week 3, Video 1 &nbsp;|&nbsp; **Playlist #9** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ![Byte addressable memory](../diagrams/07_memory_byte_addressing_pc.png)
 
@@ -48,6 +48,28 @@ From the programmer's view, RISC-V has a single 32-bit address space (2³² byte
                  │ .text        │  program code (instructions)
  low addresses   └──────────────┘
 ```
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 3 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+![Rashid's memory example](../diagrams/53_rashid_memory_words.png)
+
+- **The register file is faster than memory.** In RISC-V, the arithmetic and logic instructions only work on **registers**. Memory is only touched by loads and stores.
+- **Memory is byte-addressable:** every byte has its own address. One **word = 4 bytes**, a **half-word = 2 bytes**.
+- So word 0 is at address **0x0**, word 1 at **0x4**, word 2 at **0x8**, word 3 at **0xC**, word 4 at **0x10** — that is why the PC goes up by **4**.
+- With a 32-bit address there are 2³² byte addresses: **0x0000_0000 … 0xFFFF_FFFF**.
+
+His sample memory (used again in Day 10):
+
+| Byte address | Word | Data (MSB … LSB) |
+|---|---|---|
+| 0x10 | word 4 | CD 19 A6 58 |
+| 0x0C | word 3 | 40 F3 07 88 |
+| 0x08 | word 2 | 01 EE 28 42 |
+| 0x04 | word 1 | F2 F1 AC 07 |
+| 0x00 | word 0 | AB CD EF 78 |
 
 ---
 [⬅ Day 08](../Day-08-Week-1-2-Recap/README.md) | [Index](../README.md) | [Day 10 ➡](../Day-10-Load-Word-Store-Word/README.md)
