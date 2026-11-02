@@ -1,7 +1,7 @@
 # Day 23 — Functions - Case I, Case II (4 Arguments, One Return Value)
 
 > **Course:** Week 4, Video 4 &nbsp;|&nbsp; **Playlist #23** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** lecture transcript
+> **Notes source:** lecture transcript + Rashid's weekly notes
 
 ## Why functions?
 
@@ -129,6 +129,41 @@ This function changes **s3, t0, t1** — which `main` might be using! And what i
 2. a2.
 3. In a0.
 4. (10 + 5) − (2 + 1) = 12.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 4 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**Case I — no arguments, no return value:**
+
+```
+0x...300  main:   jal ra, simple    # 1) ra = 0x...304   2) PC = address of simple
+0x...304          ...
+0x...51C  simple: jr ra             # PC = ra = 0x...304
+```
+
+`jal` does two things: **saves the return address in `ra`** and **jumps to the function**. `jr ra` jumps back to the address in `ra`.
+
+**Case II — arguments (`a0…a7`) and a return value (`a0`):** `y = diffofsums(2, 3, 4, 5);`
+
+```asm
+main:
+  addi a0, zero, 2
+  addi a1, zero, 3
+  addi a2, zero, 4
+  addi a3, zero, 5
+  jal  diffofsums        # ra = return address
+  ...                    # y (s7) = a0
+diffofsums:
+  add  t0, a0, a1        # 2 + 3 = 5
+  add  t1, a2, a3        # 4 + 5 = 9
+  sub  s3, t0, t1        # 5 - 9 = -4
+  add  a0, s3, zero      # return -4
+  jr   ra
+```
+
+**More than 8 arguments?** The extras go on the **stack**.
 
 ---
 [⬅ Day 22](../Day-22-Caller-vs-Callee-Saved/README.md) | [Index](../README.md) | [Day 24 ➡](../Day-24-Stack-and-Pseudo-instructions/README.md)
