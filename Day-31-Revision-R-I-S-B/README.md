@@ -94,6 +94,7 @@ Each has its own opcode (35 for stores, 99 for branches) and funct3.
 **Store** (`sw t2, -6(s3)`): register **s3** + **offset** from the instruction → the **memory address** (not the PC); the content of **t2** is written there. Address calculation, read and write all happen in **one cycle** (single-cycle CPU).
 
 **Branch** (`beq s0, t5, L1`): two jobs:
+
 1. **compare** s0 and t5;
 2. **add** the offset to the **current PC** (the address of the branch itself — not the next one).
 

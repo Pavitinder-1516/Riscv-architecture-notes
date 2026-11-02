@@ -40,6 +40,7 @@ Eventually the processor will be the **central brain of a board**, with **genera
 To design the hardware, **you must understand every instruction the processor executes** — that's why we study assembly so carefully. "If you don't understand the specs, how can you create correct hardware for it?"
 
 **RV32I is a 32-bit architecture:**
+
 - the address bus to memory is 32 bits,
 - the data lines are 32 bits,
 - there are 32 registers, each 32 bits wide.
@@ -77,6 +78,7 @@ Everything in real life is analog. **Digital is a higher abstraction:** by think
 **Why "sequential"?** Through them we can give a **sequence** to operations. If everything happened at the same time, we couldn't do useful work. The **clock** brings the notion of time: it is just 0-1-0-1, but because we know its **cycle time** we know its **frequency**.
 
 A **flip-flop (1-bit register)** has:
+
 - **D** (data in), **Q** (data out),
 - **clock**: on every clock edge, data moves from D to Q,
 - **enable**: extra control — data moves only when enable is on *and* the clock edge comes,
@@ -97,6 +99,7 @@ Here we **assume** the registers already hold the values — how they come from 
 Since we **always** access registers, they are put together in one **structured block** instead of being spread around the chip — this is better for **timing**. 32 registers × 32 bits = a small 32 × 32 memory = the **register file**.
 
 At any time an instruction needs to:
+
 - **read two** registers (address 1 → read data 1, address 2 → read data 2),
 - **write one** register.
 
@@ -105,6 +108,7 @@ At any time an instruction needs to:
 ## 8. addi and immediates (Day 06)
 
 `addi` is used for two things:
+
 1. adding a constant to a register,
 2. **assigning a value** to a variable, e.g. `i = 0`, `x = 2047`, `y = -78`:
 

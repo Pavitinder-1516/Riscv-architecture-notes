@@ -102,6 +102,7 @@ So why store a bit that's always 0? The B-type stores **imm[12:1]** (12 bits) an
 ```
 
 Why this odd order? **To match the S-type wiring as much as possible:**
+
 - `imm[10:5]` is in bits 30–25 — **same as S-type**.
 - `imm[4:1]` is in bits 11–8 — **same as S-type**.
 - `imm[12]` (the **sign bit**) is in bit 31 — **same position as S-type's sign bit**.

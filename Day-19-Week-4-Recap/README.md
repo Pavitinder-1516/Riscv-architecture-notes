@@ -88,6 +88,7 @@ done:
 - **ASCII characters** are **bytes** (8 bits), so we need to **load and store bytes**: `lb`, `lbu`, `sb`.
 
 **Why signed and unsigned loads?** Registers are **not byte-addressable** — a register is always all 32 bits. When we load only 8 bits into it, we must decide what goes into the other 24 bits:
+
 - `lb` (signed): **copy the sign bit**,
 - `lbu` (unsigned): **fill with 0s**.
 

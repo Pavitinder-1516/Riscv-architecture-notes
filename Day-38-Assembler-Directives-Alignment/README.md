@@ -98,6 +98,7 @@ Notice the **grey "pad" byte** after `"RISC-V\0"`: the string uses 7 bytes (`0x1
 **Aligned** (word starts at an address divisible by 4, e.g. `0x24`): **one access** gets the whole word. ✅
 
 **Not aligned** (e.g. a word starting at `0x23`): the 4 bytes are split across **two** words. The CPU must:
+
 1. read the first word and **keep only some bytes**,
 2. read the second word and keep the rest, **throwing away** the other bytes,
 3. join them.

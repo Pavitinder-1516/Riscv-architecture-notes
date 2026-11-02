@@ -6,6 +6,7 @@
 ## Why we learn every instruction (the bigger plan)
 
 Rashid goes through the RV32I instructions one by one. Once all are learnt, they will be combined into a **Python model of the RV32I processor**. That model has two jobs:
+
 1. **reinforce learning** — practise the instructions;
 2. become the **reference for verification** — later, the same instructions are given to the **SystemVerilog** design and to the **Python model**, and their outputs are **compared**.
 
@@ -52,6 +53,7 @@ Each place to the left doubles a bit's weight.
 | right by 2 | ÷ 4 (integer: the fraction is dropped) |
 
 Examples from the video:
+
 - `96 >> 2 = 24` (96 ÷ 4).
 - `173 >> 2 = 43` — 173 ÷ 4 = 43.25, but only the **integer** is kept (the best approximation).
 - `-84 >>arith 2 = -21` — the sign bit is copied, so the result stays negative: −84 ÷ 4.

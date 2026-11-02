@@ -19,6 +19,7 @@ architecture → micro-architecture → implementation (RTL) → verification �
 Commercial chips at companies follow **exactly the same steps**, just bigger: more cores, more peripherals, more features. The **fundamentals are the same**.
 
 Why this matters for you:
+
 - Later you may work on one big block (RTL, verification or physical design). Knowing the **whole picture** means you are never lost — you know what is on your left and right.
 - Every company has an **architecture document** and a **micro-architecture document**. These simple examples give you the background to read those long, complex documents.
 - "Every course I build has a reason. It's not a university course where I am completing credits."
