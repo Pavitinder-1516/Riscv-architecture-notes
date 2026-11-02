@@ -1,7 +1,7 @@
 # Day 10 — Load Word and Store Word Instructions
 
 > **Course:** Week 3, Video 2 &nbsp;|&nbsp; **Playlist #10** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ```asm
 lw  rd,  offset(rs1)     # rd          = Memory32[rs1 + sign_ext(offset)]
@@ -36,6 +36,30 @@ sw   t0, 0(a1)
 ```
 
 > ⚠️ **Common mistake:** using index `i` directly as the offset. For words, the byte offset is `i × 4` (`slli t0, i, 2`).
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 3 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**`lw` = load a word from memory into a register.** High-level `a = mem[2]` (word 2).
+
+```asm
+lw s7, 8(zero)        # address = 8 + 0 = 0x8  → s7 = 0x01EE2842
+```
+
+`8(zero)` is **offset + base register**: offset 8, base = `zero` (0). Word 2 lives at byte address 2 × 4 = **8**.
+
+**`sw` = store a word.** High-level `mem[5] = 42`.
+
+```asm
+addi t3, zero, 42     # t3 = 42 = 0x0000002A
+sw   t3, 20(zero)     # address = 20 = 0x14 (word 5) → mem[0x14] = 0x0000002A
+```
+
+> ✏️ **Small correction:** on the board 42 is written as `101000` / `0x28` — that is **40**. 42 = `101010` = **0x2A**. The address part (word 5 → byte 20 = 0x14) is right.
+
+Verified encodings: `lw s7, 8(zero)` = **0x00802B83**, `sw t3, 20(zero)` = **0x01C02A23**.
 
 ---
 [⬅ Day 09](../Day-09-Memory-Architecture-PC-plus-4/README.md) | [Index](../README.md) | [Day 11 ➡](../Day-11-Logical-AND-OR-XOR/README.md)
