@@ -1,7 +1,7 @@
 # Day 28 — S/B-Type Instructions - Assembly to Binary
 
 > **Course:** Week 6, Video 3 &nbsp;|&nbsp; **Playlist #28** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** lecture transcript
+> **Notes source:** lecture transcript + Rashid's weekly notes
 
 A small change of plan: instead of starting the **Python** implementation of R and I types now, Rashid first **finishes the theory** — S/B types today, then U/J. Coding takes time to improve, so it's better to have all the theory first.
 
@@ -147,6 +147,32 @@ Rashid admits this video got messy in places (he first drew a comparator where a
 2. 0x1F0 − 0x200 = −16.
 3. Instructions are at even addresses, so it's always 0; the hardware hard-wires it.
 4. imm[11] (it goes to bit 7, where S-type has imm[0]).
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 6 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**S and B opcode table:**
+
+| Type | Instr | op | funct3 |
+|---|---|---|---|
+| S | sb / sh / sw | 35 | 0 / 1 / 2 |
+| B | beq / bne | 99 | 0 / 1 |
+| B | blt / bge | 99 | 4 / 5 |
+| B | bltu / bgeu | 99 | 6 / 7 |
+
+**Book Figure 6.20 — more S-type examples (verified):**
+
+| Assembly | Machine code |
+|---|---|
+| `sw t2, -6(s3)` | **0xFE79AD23** |
+| `sh s4, 23(t0)` | **0x01429BA3** |
+| `sb t5, 0x2D(zero)` | **0x03E006A3** |
+
+**B-type:** bit 0 of the 13-bit offset is **hard-wired to 0** (instructions are at even addresses), so only bits 12:1 are stored.
+
+**Book Example 6.5 — a backward branch:** `bne s8, s9, L1` at **0xEB0**, with `L1` at **0x354**. Offset = 0x354 − 0xEB0 = **−2908** (−0xB5C) → 13-bit `1 0100 1010 0100`. s8 = x24, s9 = x25, op = 99, funct3 = 1 → machine code **0xCB9C1263** (verified).
 
 ---
 [⬅ Day 27](../Day-27-I-Type-Encoding/README.md) | [Index](../README.md) | [Day 29 ➡](../Day-29-U-J-Type-Encoding/README.md)
