@@ -1,7 +1,7 @@
 # Day 18 — Arrays, ASCII Characters, Load/Store Bytes and Half-Words
 
 > **Course:** Week 4, Video 3 &nbsp;|&nbsp; **Playlist #18** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## All load/store sizes
 
@@ -102,6 +102,58 @@ E:      mv   a0, t0
 ```
 
 (A faster version increments a pointer by 4 instead of recomputing `i*4`.)
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 4 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**Arrays** = "store the contents at **sequential addresses** in memory" — they keep the data together. In his memory picture `scores[0]` is word 0 (address 0x0), `scores[1]` is at 0x4, `scores[2]` at 0x8 …
+
+**Code Example 6.21 — `scores[i] = scores[i] + 10` for 200 entries** (s0 = base address, s1 = i):
+
+```asm
+      addi s1, zero, 0      # i = 0
+      addi t2, zero, 200    # t2 = 200
+for:  bge  s1, t2, done     # i >= 200? exit
+      slli t0, s1, 2        # t0 = i * 4   (byte offset)
+      add  t0, t0, s0       # address of scores[i] = base + i*4
+      lw   t1, 0(t0)        # t1 = scores[i]
+      addi t1, t1, 10
+      sw   t1, 0(t0)        # scores[i] = t1
+      addi s1, s1, 1        # i++
+      j    for
+done:
+```
+
+**ASCII** = American Standard Code for Information Interchange, an **8-bit** code. Printable characters run 0x20 … 0x7E → **95** of them ('A' = 0x41, 'a' = 0x61 — lowercase is uppercase + 32).
+
+**Byte loads/stores** (book Figure 6.5, memory word = `F7 8C 42 03`, s4 points to it):
+
+| Instruction | Result |
+|---|---|
+| `lbu s1, 2(s4)` | s1 = **0x0000008C** (zero-extended) |
+| `lb  s2, 3(s4)` | s2 = **0xFFFFFFF7** (sign-extended: F7 has its top bit set) |
+| `sb  s3, 1(s4)` | stores the **low byte** of s3 (0x9B) into byte 1 |
+
+**Strings** end with a **null byte 0x00** — "Hello!" is `48 65 6C 6C 6F 21 00` (7 bytes).
+
+**Example 6.2 — make a 10-char array upper-case** (subtract 32 from each char; s0 = base, s1 = i):
+
+```asm
+      addi s1, zero, 0
+      addi t0, zero, 10
+for:  bge  s1, t0, done
+      add  t1, s1, s0       # address = base + i   (bytes, so NO *4)
+      lbu  s2, 0(t1)
+      addi s2, s2, -32
+      sb   s2, 0(t1)
+      addi s1, s1, 1
+      j    for
+done:
+```
+
+**Half-words:** `lh` (load half, sign-extended), `lhu` (zero-extended), `sh` (store half) — 16 bits.
 
 ---
 [⬅ Day 17](../Day-17-Loops/README.md) | [Index](../README.md) | [Day 19 ➡](../Day-19-Week-4-Recap/README.md)
