@@ -1,7 +1,7 @@
 # Day 32 — An Example of BNE (B-Type) with Label Going Backward
 
 > **Course:** Week 6, Video 4 &nbsp;|&nbsp; **Playlist #32** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ![Label offset](../diagrams/27_label_offset_calc.png)
 
@@ -76,6 +76,40 @@ Encode (answers can be checked with `tools/rv32i_encoder.py`):
 4. `0x00028463`
 5. opcode 0010011, funct3 001 → `slli`; rd = x5, rs1 = x5, shamt = 2 → `slli t0, t0, 2`.
 </details>
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 7 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**Where jumps really come from** — in a whole program you only ever see three kinds of jump:
+
+1. **Function call** → jump to a LABEL (`jal`)
+2. **Return** from a function → jump to `ra` (`jalr` / `jr ra`)
+3. **Conditional jumps** — if-else, case-switch, for/while loops → jump to a LABEL (`beq`, `bge` …)
+
+**So the hardware only needs 3 jump mechanisms:**
+
+| Instruction | Operands | Target | Range |
+|---|---|---|---|
+| `beq/bne/bge…` | rs1, rs2, imm | PC + offset (13-bit) | ±4 KB |
+| `jal` | rd, imm | **PC + offset** (21-bit) | **±1 MB** (−2²⁰ … 2²⁰−1) |
+| `jalr` | rd, rs1, imm | **rs1 + offset** (12-bit) | **±2 KB** around a register |
+
+**`jal rd, offset` — relative to the PC:** 1) PC = PC + offset, 2) save PC + 4 in `rd`.
+
+**`jalr rd, rs1, offset` — relative to a REGISTER:** 1) PC = rs1 + offset, 2) save PC + 4 in `rd`. `jalr zero, ra, 0` = PC = ra and nothing is saved → that's `jr ra`.
+
+**"Only ±2 KB? Small jump??" — No, wait:** together with `auipc`,
+
+```asm
+auipc rd1, imm_upper      # rd1 = PC + (imm_upper << 12)
+jalr  rd, rd1, imm_lower
+```
+
+lets you jump **anywhere in the 32-bit space (±2 GB)**. The pseudo-instructions **`call`** and **`tail`** use exactly this two-instruction sequence.
+
+Memory sizes on his page: 10 bits → 1K, 20 bits → 1M, 2³² → 4 GB addressable space.
 
 ---
 [⬅ Day 31](../Day-31-Revision-R-I-S-B/README.md) | [Index](../README.md) | [Day 33 ➡](../Day-33-Peripherals/README.md)
