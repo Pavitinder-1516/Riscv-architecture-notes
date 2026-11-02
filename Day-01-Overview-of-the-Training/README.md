@@ -1,7 +1,7 @@
 # Day 01 — Overview of the Training
 
 > **Course:** Week 1, Video 1 &nbsp;|&nbsp; **Playlist #1** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## What is an ISA?
 
@@ -95,6 +95,26 @@ Every instruction goes through the same basic steps:
 | Verilator / Icarus + GTKWave | Simulate a RISC-V core written in Verilog |
 
 > 💡 **Tip:** Compile a tiny C function with `-O1 -S` and read the generated assembly — it is the fastest way to learn what the compiler does.
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 1,2 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+**The 4-stage plan he draws on the first page** — design, implement, verify, then physical design of a low-cost, low-power RV32I core using only free/open-source tools:
+
+| Stage | What happens | Time he planned |
+|---|---|---|
+| 1 | RISC-V **architecture** + a **Python model** of the CPU | ~2 months |
+| 2 | **SystemVerilog** implementation + SV verification | ~2 months |
+| 3 | **UVM** validation of the core | 2–3 months |
+| 4 | **Physical design** with open-source tools | 2–3 months |
+
+**Reference book:** *Digital Design and Computer Architecture, RISC-V Edition* by Sarah L. Harris & David Money Harris — **Chapter 6** (architecture) and **Chapter 7** (microarchitecture). Most of the code examples in these notes (6.4, 6.18, 6.24, 6.27 …) are from that book.
+
+**Membership extras:** "just-in-time fundamentals" (he teaches the digital-logic basics exactly when they are needed), a **weekly quiz** (Google Form) and **weekly notes** (PDF).
+
+**Our blueprint = the RISC-V ISA, RV32I** → a **32-bit machine**: 32-bit address bus, 32-bit data bus, so the CPU can address 0 … 2³² − 1 memory locations. The system is just **CPU ↔ Memory ↔ I/Os** (I/Os are how the chip talks to the real world).
 
 ---
 [Index](../README.md) | [Day 02 ➡](../Day-02-RV32I-Just-in-Time-Approach/README.md)
