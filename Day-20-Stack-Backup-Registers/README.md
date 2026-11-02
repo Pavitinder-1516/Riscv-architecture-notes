@@ -1,7 +1,7 @@
 # Day 20 — Using the Stack to Back Up Registers During a Function Call
 
 > **Course:** Week 5, Video 1 &nbsp;|&nbsp; **Playlist #20** &nbsp;|&nbsp; [Chip Design with Rashid — RISC-V Architecture Explained](https://www.youtube.com/playlist?list=PL0-xus8sJBCRzZtmL_fLWaohRKuc4j5aH)  
-> **Notes source:** video topic + standard RV32I material (to be updated from the transcript)
+> **Notes source:** video topic + Rashid's weekly notes + standard RV32I material
 
 ## The problem
 
@@ -52,6 +52,38 @@ func:
 1. Every `addi sp, sp, -N` must be matched by `addi sp, sp, +N` on every return path.
 2. Restore registers before `ret`.
 3. Never read data below `sp` — it can be overwritten (e.g. by an interrupt handler).
+
+<!-- rashid-notes -->
+## 📒 From Rashid's Week 5 notes
+
+> Extra points and worked examples from Rashid's members-only weekly notes ([RISCV_Arch folder](https://drive.google.com/drive/folders/1sIX-rAanGWWkZocAbXNmvW80JbdAEg6P), members only). Written here in my own words; most of his examples come from the reference book *Digital Design and Computer Architecture, RISC-V Edition* (Harris & Harris), chapters 6–7.
+
+![Case III stack](../diagrams/54_rashid_stack_case3.png)
+
+**Stack = "part of memory used as scratch space".** It **grows down** (towards smaller addresses) and is **last-in, first-out**. The `sp` register points to the top. Making room for one word = `sp − 4`.
+
+**Rashid's question:** in `diffofsums` the function uses `t0`, `t1`, `s3` — *what if `main` was also using these?* They would be destroyed. Answer = **save them on the stack first and restore them before returning**.
+
+**Case III — Code Example 6.24 (save everything):**
+
+```asm
+diffofsums:
+  addi sp, sp, -12     # 1) make room for 3 words
+  sw   s3, 8(sp)       # 2) save s3
+  sw   t0, 4(sp)       # 3) save t0
+  sw   t1, 0(sp)       # 4) save t1
+  add  t0, a0, a1      # t0 = f + g
+  add  t1, a2, a3      # t1 = h + i
+  sub  s3, t0, t1      # result = (f + g) - (h + i)
+  add  a0, s3, zero    # return value in a0
+  lw   s3, 8(sp)       # 5) restore s3
+  lw   t0, 4(sp)       # 6) restore t0
+  lw   t1, 0(sp)       # 7) restore t1
+  addi sp, sp, 12      # 8) give the space back
+  jr   ra
+```
+
+With sp = 0xBEF0F0FC before the call, sp goes down to **0xBEF0F0F0** inside the function and is back to 0xBEF0F0FC after (the picture above).
 
 ---
 [⬅ Day 19](../Day-19-Week-4-Recap/README.md) | [Index](../README.md) | [Day 21 ➡](../Day-21-Stack-Callee-and-Caller/README.md)
